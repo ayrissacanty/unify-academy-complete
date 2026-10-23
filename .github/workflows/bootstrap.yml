@@ -1,0 +1,37 @@
+# One-time bootstrap: composes this repository from the best parts of
+# pixunisim + unify-campus-quest + unify-academy-3d, then deletes itself.
+name: Bootstrap merged repo
+on:
+  push:
+    paths:
+      - .github/workflows/bootstrap.yml
+permissions:
+  contents: write
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pixunisim base tree
+        run: git clone --depth 1 https://github.com/ayrissacanty/pixunisim.git /tmp/pix
+      - name: Compose merged tree
+        run: |
+          shopt -s dotglob
+          cp -r /tmp/pix/* .
+          git apply --whitespace=nowarn merge.patch
+          rm -f merge.patch .github/workflows/bootstrap.yml
+      - name: Commit merged tree
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Merge best parts of pixunisim, unify-campus-quest and unify-academy-3d
+
+          Base: pixunisim (full K-12 3D campus, news pipeline, movie look).
+          From unify-campus-quest: curriculum sequence module, resilient
+          build_netlify.py payload restore, CI smoke-test timing fix.
+          From unify-academy-3d: class pet, daily moments, lesson stamps,
+          study buddy, dorm rewards, parent weekly summary, 3D Club Corner
+          and Today-panel stamp card (commits 4954c7c and aa4300d)."
+          git push origin HEAD:main
