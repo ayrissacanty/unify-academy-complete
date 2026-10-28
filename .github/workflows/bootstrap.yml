@@ -14,11 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch pixunisim base tree
-        run: git clone --depth 1 https://github.com/ayrissacanty/pixunisim.git /tmp/pix
+        run: git clone https://github.com/ayrissacanty/pixunisim.git /tmp/pix && git -C /tmp/pix checkout df33f6e  # patch base (Oct 23); pinned so later pixunisim commits cannot break it
       - name: Compose merged tree
         run: |
           shopt -s dotglob
-          cp -r /tmp/pix/* .
+          rm -rf /tmp/pix/.git && cp -r /tmp/pix/* .
           git apply --whitespace=nowarn merge.patch
           rm -f merge.patch .github/workflows/bootstrap.yml
       - name: Commit merged tree

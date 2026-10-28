@@ -1,7 +1,8 @@
 diff --git a/README.md b/README.md
+index 8f48791..d41dec4 100644
 --- a/README.md
 +++ b/README.md
-@@ -82,6 +82,18 @@
+@@ -82,6 +82,18 @@ Packs ship in `curriculum/` (listed in `curriculum/index.json`) or are imported
  In class: **More → Textbook** (chapters, search; every class also has auto-made class notes), **More → Electives** (extra courses such as the bundled high-school electives: Algebra I, Geometry, Statistics, Computer Science, Psychology, Public Speaking, Journalism, Economics, Test Prep, Applications, Study Skills).
  The class-times bulletin board: classroom **Camera → Bulletin board**, hallway **Go to → Class-times board** (or key **B**).
  
@@ -20,7 +21,46 @@ diff --git a/README.md b/README.md
  
  ---
  
+diff --git a/clubs3d.html b/clubs3d.html
+new file mode 100644
+index 0000000..0e6a661
+--- /dev/null
++++ b/clubs3d.html
+@@ -0,0 +1,32 @@
++<!DOCTYPE html>
++<html lang="en">
++<head>
++<meta charset="utf-8">
++<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
++<title>UNIFY Club Corner</title>
++<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap">
++<style>
++:root{--kraft:#F3E7CF;--edge:#C9B28A;--ink:#4A3B3F;--acc:#E07A66;--ui:"Fredoka","Trebuchet MS",system-ui,sans-serif}
++*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
++html,body{height:100%;background:#F6E6CF;color:var(--ink);font-family:var(--ui);overflow:hidden;user-select:none}
++#game{position:absolute;inset:0}#game canvas{display:block;width:100%;height:100%}
++button{font:inherit;font-size:14px;color:var(--ink);background:var(--kraft);border:1px solid rgba(255,255,255,.7);border-radius:12px;padding:6px 12px;min-height:38px;cursor:pointer;box-shadow:0 2px 0 var(--edge),0 5px 8px rgba(80,50,40,.25)}
++button:focus-visible{outline:3px solid #3b3552;outline-offset:2px}button.go{background:var(--acc);color:#fff;border-color:var(--acc)}button.on{background:#3FB68B;color:#fff;border-color:#3FB68B}
++#top{position:absolute;z-index:30;top:calc(10px + env(safe-area-inset-top,0px));left:10px;right:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
++#top .t{background:var(--kraft);border-radius:12px;padding:6px 12px;font-weight:600;box-shadow:0 2px 0 var(--edge)}
++#list{position:absolute;z-index:30;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
++#list button{min-height:34px;font-size:13px;padding:4px 10px}#list button .d{opacity:.7;font-size:11px;margin-left:4px}
++#pop{position:absolute;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,92vw);display:none;background:#FFF9F0;border-radius:20px;padding:16px 18px;box-shadow:0 12px 40px rgba(60,40,30,.4);border:3px solid var(--edge)}
++#pop.show{display:block}#pop h2{font-size:22px;margin-bottom:4px}#pop p{font-size:15px;line-height:1.4;margin:4px 0}#pop .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}#pop small{opacity:.75}
++#hint{position:absolute;z-index:20;left:50%;top:62px;transform:translateX(-50%);font-size:13px;background:rgba(255,249,240,.9);border-radius:10px;padding:4px 10px;pointer-events:none}
++</style>
++</head>
++<body>
++<div id="game"></div>
++<div id="top"><button id="bBack">▲ Back to school</button><span class="t">🎒 Club Corner</span><button id="bToday">⭐ Today &amp; clubs</button></div>
++<div id="hint">Tap a table to see the club. Drag to look around.</div>
++<div id="pop" role="dialog" aria-modal="true" aria-labelledby="pT"><h2 id="pT"></h2><p id="pB"></p><p id="pM"></p><p><small id="pP"></small></p><div class="row"><button id="pJoin" class="go"></button><button id="pOpen">Open clubs &amp; meetings</button><button id="pX">Close</button></div></div>
++<nav id="list" aria-label="Clubs"></nav>
++<script src="demo/dist/clubs3d.js"></script>
++</body>
++</html>
 diff --git a/demo/classroom3d.ts b/demo/classroom3d.ts
+index 7725194..05ac16b 100644
 --- a/demo/classroom3d.ts
 +++ b/demo/classroom3d.ts
 @@ -1,3 +1,5 @@
@@ -29,7 +69,7 @@ diff --git a/demo/classroom3d.ts b/demo/classroom3d.ts
  import { Classroom3D, type CamMode } from "../src/class3d/Classroom3D";
  import { Director } from "../src/class3d/director";
  import { ALL_LESSONS, CURRICULUM, type LessonDef } from "../src/class3d/curriculum";
-@@ -42,6 +44,9 @@
+@@ -42,6 +44,9 @@ const life = new ClassroomLife({
  }, document.body); life.auto = false; (window as any).__life = life;
  life.onState = (st) => { $("bHand").classList.toggle("on", st.handUp); $("bHand").textContent = st.handUp ? "Hand up" : "Raise hand (H)"; };
  $("bHand").onclick = () => life.raiseHand();
@@ -39,7 +79,7 @@ diff --git a/demo/classroom3d.ts b/demo/classroom3d.ts
  const bV = $("bVoice"); const paintV = () => { bV.textContent = voice.enabled ? "🔊 Voice on" : "🔇 Voice off"; bV.classList.toggle("on", voice.enabled); }; bV.onclick = () => { voice.enabled = !voice.enabled; paintV(); }; if (!voice.available) bV.style.display = "none"; paintV();
  
  /* ---- captions + steps ---- */
-@@ -58,7 +63,7 @@
+@@ -58,7 +63,7 @@ const ui = {
      if (l.elective) { Progress.completeExtra(l.subject as Subject, l.id); this.caption("Class", `Elective lesson done: ${l.title}. Open More, then Textbook, to read more, or Electives to pick another.`, 10000); return; }
      if (l.extra) { Progress.completeExtra(l.subject as Subject, l.id); paintExtra(); const pl = Placement.plan(l.subject as Subject); this.caption("Class", pl?.next ? `Extra lesson done! Next extra lesson: ${pl.next.title}. Your regular class is still waiting.` : "Extra lessons done: you are caught up with your class!", 10000); return; }
      const list = bandLessons(CURRICULUM[l.subject]);
@@ -48,7 +88,7 @@ diff --git a/demo/classroom3d.ts b/demo/classroom3d.ts
    },
    book(ref: string) { curRef = ref; $("bBook").classList.add("on"); $("moreDot").classList.add("on"); },
    setTitle(t: string) { $("ltitle").textContent = t; },
-@@ -105,7 +110,7 @@
+@@ -105,7 +110,7 @@ async function start(s: Subject, att: number[] = lastAtt) {
  }
  /** run one lesson: a regular one, or an extra (catch-up) lesson that sits beside regular classes */
  function begin(l: LessonDef, att: number[] = lastAtt) {
@@ -57,7 +97,7 @@ diff --git a/demo/classroom3d.ts b/demo/classroom3d.ts
    room.assign(att); life.stop(); life.lesson = lesson; chat.close(); $("bLab").classList.remove("on"); $("moreDot").classList.remove("on"); ($("bNext") as HTMLButtonElement).hidden = true; room.auto = true; markCam("auto"); room.refreshBoard(subject); paintExtra(); showGradeLogic(l.title);
    void director.run(lesson); void life.start(subject);
  }
-@@ -147,7 +152,8 @@
+@@ -147,7 +152,8 @@ room.onTapDemo = openLab; $("bLab").onclick = openLab;
  let wanted: string | null = params.get("subject"), wantedAtt: number[] = [];
  addEventListener("message", (e) => { const d = e.data; if (d && d.type === "unify:lesson" && SUBJECTS.includes(d.subject)) start(d.subject, Array.isArray(d.attendees) ? d.attendees.filter((x: any) => Number.isInteger(x)) : []); else if (d && d.type === "unify:exit") { director.stop(); life.stop(); } });
  start(SUBJECTS.includes(wanted as Subject) ? (wanted as Subject) : "math").catch((e) => console.error("lesson start failed", e));
@@ -67,10 +107,45 @@ diff --git a/demo/classroom3d.ts b/demo/classroom3d.ts
  parent !== window && parent.postMessage({ type: "unify:auditorium-ready" }, "*");
  void ALL_LESSONS; void TEACHER_BY_SUBJECT;
  import { VIDEO_BY_ID } from "../src/class3d/videos"; (window as any).__vids = VIDEO_BY_ID;
+diff --git a/demo/clubs3d.ts b/demo/clubs3d.ts
+new file mode 100644
+index 0000000..049f07f
+--- /dev/null
++++ b/demo/clubs3d.ts
+@@ -0,0 +1,28 @@
++import { ClubRoom3D, DAY_NAMES } from "../src/clubs3d/ClubRoom3D";
++import { CLUBS, Clubs, type Club } from "../src/game/community";
++import { openHub } from "../src/hall3d/hubui";
++
++const $ = (id: string) => document.getElementById(id)!;
++const room = new ClubRoom3D($("game")); (window as any).__clubs = room;
++let cur: Club | null = null;
++const today = new Date().getDay();
++
++function close() { $("pop").classList.remove("show"); cur = null; }
++function show(c: Club) {
++  cur = c; const mine = Clubs.mine().some((x) => x.id === c.id), meets = c.day === today;
++  $("pT").textContent = `${c.icon} ${c.name}`; $("pB").textContent = c.blurb;
++  $("pM").textContent = `Meets on ${DAY_NAMES[c.day]}s${meets ? ", and that is today!" : "."}`; $("pP").textContent = `Prize for taking part: ${c.prize}`;
++  const j = $("pJoin") as HTMLButtonElement; j.textContent = mine ? "Leave this club" : "Join this club"; j.className = mine ? "" : "go";
++  $("pop").classList.add("show"); j.focus();
++}
++function paintList() {
++  const mine = new Set(Clubs.mine().map((c) => c.id)), nav = $("list"); nav.innerHTML = "";
++  for (const c of CLUBS) { const b = document.createElement("button"); b.type = "button"; b.className = mine.has(c.id) ? "on" : ""; b.append(`${c.icon} ${c.name}`); const d = document.createElement("span"); d.className = "d"; d.textContent = c.day === today ? "today" : DAY_NAMES[c.day].slice(0, 3); b.append(d); b.setAttribute("aria-label", `${c.name}, meets ${DAY_NAMES[c.day]}${mine.has(c.id) ? ", you are a member" : ""}`); b.onclick = () => show(c); nav.append(b); }
++}
++room.onPick = (c) => { if (c) show(c); else close(); };
++$("pJoin").onclick = () => { if (!cur) return; const mine = Clubs.mine().some((x) => x.id === cur!.id); if (mine) Clubs.leave(cur.id); else Clubs.join(cur.id); room.refresh(); paintList(); show(cur); };
++$("pOpen").onclick = () => { if (cur && !Clubs.mine().some((x) => x.id === cur!.id)) { Clubs.join(cur.id); room.refresh(); paintList(); } close(); openHub({ onClose: () => { room.refresh(); paintList(); } }, "Friends & clubs"); };
++$("pX").onclick = close; addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
++$("bToday").onclick = () => openHub({ onClose: () => { room.refresh(); paintList(); } }, "Today");
++$("bBack").onclick = () => { if (parent !== window) parent.postMessage({ type: "unify:stage-exit" }, "*"); else if (history.length > 1) history.back(); else location.href = "hallway3d.html"; };
++setTimeout(() => ($("hint").style.display = "none"), 9000); paintList();
 diff --git a/demo/family.ts b/demo/family.ts
+index c11c106..b708769 100644
 --- a/demo/family.ts
 +++ b/demo/family.ts
-@@ -24,7 +24,7 @@
+@@ -24,7 +24,7 @@ interface Backend {
    signInKid?(email: string, password: string): Promise<KidSession>; kidLogin?(): Promise<KidSession | null>;
    getNet?(uid: string, kid: string): Promise<{ open: boolean; visible: boolean } | null>; setNet?(uid: string, kid: string, patch: { open?: boolean; visible?: boolean }): Promise<void>;
  }
@@ -79,7 +154,16 @@ diff --git a/demo/family.ts b/demo/family.ts
  const FKEY = "unify.family.v1", GUEST_BACKUP = "unify.guest.backup.v1", STASH = "unify.locker.pics.";
  interface Local { mode?: "guest" | "family"; kid?: string; kidName?: string }
  const lget = (): Local => { try { return JSON.parse(localStorage.getItem(FKEY) || "{}"); } catch { return {}; } };
+diff --git a/demo/weekly.ts b/demo/weekly.ts
+new file mode 100644
+index 0000000..b1af5e0
+--- /dev/null
++++ b/demo/weekly.ts
+@@ -0,0 +1,2 @@
++import { weekly } from "../src/game/weekly";
++(window as any).__weekly = { weekly };
 diff --git a/package.json b/package.json
+index 1be5855..77ef009 100644
 --- a/package.json
 +++ b/package.json
 @@ -11,7 +11,7 @@
@@ -92,9 +176,10 @@ diff --git a/package.json b/package.json
      "dev": "npm run build && npm start",
      "postinstall": "npm run build",
 diff --git a/parent.html b/parent.html
+index 97e9d98..abfef63 100644
 --- a/parent.html
 +++ b/parent.html
-@@ -27,6 +27,7 @@
+@@ -27,6 +27,7 @@ main{max-width:640px;margin:0 auto}h1{font-size:24px;margin:0 0 2px}h2{font-size
  <section id="live" tabindex="-1" style="max-width:640px;margin:0 auto;outline:none"></section>
  <script src="supabase-config.js"></script>
  <script src="supabase-client.js"></script>
@@ -102,7 +187,7 @@ diff --git a/parent.html b/parent.html
  <script type="module">
  const $=document.getElementById('m'),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]));
  const hm=m=>{const h=Math.floor(m/60)%24,mm=m%60;return`${h%12||12}:${String(mm).padStart(2,'0')} ${h<12?'AM':'PM'}`;};
-@@ -122,6 +123,19 @@
+@@ -122,6 +123,19 @@ async function view(uid){
    return cards[key]={d,dot,list,n:0};
   };
   kids.forEach(k=>cardFor(k));
@@ -123,9 +208,10 @@ diff --git a/parent.html b/parent.html
   const bubble=(t,m,fresh)=>{const b=el('div','m'+(fresh?' hl':''),t.log);el('small','',b,nameOf(m.from_id)+' · '+tfmt(m.at));el('span','',b,m.text);if(fresh)setTimeout(()=>b.classList.remove('hl'),2600);t.log.scrollTop=t.log.scrollHeight;};
   const prev=t=>{const a=msgs[t.tid]||[],m=a[a.length-1];t.pv.textContent=m?(nameOf(m.from_id)+': '+m.text):'No messages yet';t.tm.textContent=m?tfmt(m.at):'';};
 diff --git a/src/class3d/Classroom3D.ts b/src/class3d/Classroom3D.ts
+index bcdcb95..d7e942b 100644
 --- a/src/class3d/Classroom3D.ts
 +++ b/src/class3d/Classroom3D.ts
-@@ -25,6 +25,7 @@
+@@ -25,6 +25,7 @@ import { isPixar } from "../shared/look";
  import { INTERIOR_SCALE as IS, PROP_H, scaleScene } from "../shared/scale";
  import { setupPixarClass, type ClassPx } from "./pixarClass";
  import type { Char3DEx } from "../dorm/char3d";
@@ -133,7 +219,7 @@ diff --git a/src/class3d/Classroom3D.ts b/src/class3d/Classroom3D.ts
  
  export const X0 = -9, X1 = 9, Z0 = -9.5, Z1 = 9.5, WALL = 5.4, STAGE_H = 0.3, STAGE_Z = -6.3;
  export const ROWS = 6, COLS = 8, ROW_DZ = 1.95, ROW_Z0 = -3.6, XS = [-7.6, -5.7, -3.8, -1.9, 1.9, 3.8, 5.7, 7.6];
-@@ -58,14 +59,14 @@
+@@ -58,14 +59,14 @@ export class Classroom3D {
    private pBeam!: Beam; private lights!: { hemi: THREE.HemisphereLight; sun: THREE.DirectionalLight; spot: THREE.SpotLight; ceil: THREE.MeshBasicMaterial; beam: THREE.Mesh; glow: THREE.Mesh };
    private decor = new THREE.Group(); private demo = new THREE.Group(); private demoModel: THREE.Object3D | null = null; private demoMatClones: THREE.Material[] = [];
    private boardMats: THREE.MeshBasicMaterial[] = []; private t = 0; private last = performance.now(); private raycaster = new THREE.Raycaster(); private hoverT = 0; private tex = new Map<string, THREE.Texture>();
@@ -150,7 +236,7 @@ diff --git a/src/class3d/Classroom3D.ts b/src/class3d/Classroom3D.ts
      if (isPixar()) { this.px = setupPixarClass(this, { X0, X1, Z0, Z1, WALL, STAGE_H, groundY, rowH, rowZ }, this.lights as any); this.px.refresh(this.scene); }
      else this.px = setupPixarClass(this, { X0, X1, Z0, Z1, WALL, STAGE_H, groundY, rowH, rowZ }, this.lights as any, true);
      this.px.syncTeacher();
-@@ -442,7 +443,7 @@
+@@ -442,7 +443,7 @@ export class Classroom3D {
    private frame = (now: number) => { try {
      const raw = now - this.last, dt = Math.min(0.05, raw / 1000); this.last = now; this.t += dt; Gfx.tick(raw);
      if ((this.todT -= dt) < 0) { this.todT = 5; this.tod = Mood.realTod(); } Mood.update(dt, this.todParam ?? this.tod); this.fx.tick(this.t);
@@ -159,224 +245,9 @@ diff --git a/src/class3d/Classroom3D.ts b/src/class3d/Classroom3D.ts
      if (this.mode === "screen") this.screenK = Math.min(1, this.screenK + dt * this.screenRate);
      // lighting: ease toward dim / bright
      this.dim += (this.dimT - this.dim) * Math.min(1, dt * 1.6); const d = this.dim, L = this.lights;
-diff --git a/src/dorm/furniture.ts b/src/dorm/furniture.ts
---- a/src/dorm/furniture.ts
-+++ b/src/dorm/furniture.ts
-@@ -8,6 +8,7 @@
- type V3 = [number, number, number];
- export interface FurnitureDefX extends FurnitureDef {
-   /** default bottom height for wall items */ y0?: number;
-+  /** earned, not bought: only listed in the picker once unlocked (see rewards.ts) */ reward?: boolean;
-   /** may overlap others (backpack on a chair) */ soft?: boolean;
-   /** free height below (loft bed): collisions only count above this */ under?: number;
- }
-@@ -169,7 +170,7 @@
- /* ------------------------------------------------------------------ catalogue plumbing */
- export const CATALOG: FurnitureDefX[] = [];
- type Build = (s: Style, c: string, v: number) => THREE.Object3D;
--type Extra = Partial<Pick<FurnitureDefX, "wall" | "flat" | "surface" | "variants" | "core" | "y0" | "soft" | "under">>;
-+type Extra = Partial<Pick<FurnitureDefX, "wall" | "flat" | "surface" | "variants" | "core" | "y0" | "soft" | "under" | "reward">>;
- function D(id: string, name: string, cat: FurnitureCat, size: V3, colors: string[], ex: Extra, build: Build) {
-   CATALOG.push({ id, name, cat, size, colors, ...ex, build });
- }
-@@ -479,6 +480,24 @@
-   const sp = new THREE.Mesh(new THREE.SphereGeometry(0.11, 24, 16), mark(s.mat("plastic", "#ffffff", { map: canvasTex(cv), rough: 0.4 }))); sp.position.set(0, 0.26, 0); sp.rotation.z = 0.4; sp.castShadow = true; g.add(sp);
-   ud(g).tick = (dt: number) => { sp.rotation.y += dt * 0.25; }; return g;
- });
-+/* ------------------------------------------------------------------ earned rewards (see rewards.ts) */
-+D("r-petcage", "Pet cage", "decor", [0.5, 0.36, 0.42], ["#E8C99A", "#F4EBDD", "#E8567C", "#4F91C7", "#3FB68B", "#F2B138"], { reward: true, surface: 0.4 }, (s, c) => {
-+  const b = new B(s), bar = met(c), base = wood("#8A5A3A"); b.box(0.5, 0.05, 0.36, 0, 0, 0, base, 0.01); b.box(0.5, 0.03, 0.36, 0, 0.37, 0, base, 0.01);
-+  for (const x of [-0.23, -0.115, 0, 0.115, 0.23]) { b.cyl(0.006, 0.006, 0.32, x, 0.05, 0.165, bar, undefined, 6); b.cyl(0.006, 0.006, 0.32, x, 0.05, -0.165, bar, undefined, 6); }
-+  for (const z of [-0.12, 0, 0.12]) { b.cyl(0.006, 0.006, 0.32, 0.245, 0.05, z, bar, undefined, 6); b.cyl(0.006, 0.006, 0.32, -0.245, 0.05, z, bar, undefined, 6); }
-+  b.cyl(0.07, 0.07, 0.02, 0.1, 0.05, 0, wood("#EBD48A"), undefined, 14); b.sph(0.055, -0.1, 0.1, 0, pla("#F1E6D8"), { s: [1.2, 0.9, 1] }); b.tor(0.1, 0.007, -0.1, 0.17, 0, bar, { r: [Math.PI / 2, 0, 0] }); return b.done();
-+});
-+D("r-pennant", "Spirit pennant", "decor", [0.7, 0.04, 0.4], ["#E8604C", "#4F91C7", "#5FB37A", "#EAB94E", "#8E7CC3", "#2B2F3A"], { reward: true, wall: true, y0: 1.45 }, (s, c) => {
-+  const b = new B(s), cloth = clo(c); b.cylH(0.012, 0.74, 0, 0.38, 0, wood("#8A5A3A"), "x", 8);
-+  b.box(0.62, 0.34, 0.012, 0, 0.04, 0, cloth, 0.004); b.box(0.5, 0.2, 0.012, 0.05, 0.1, 0.006, clo("#FFFFFF"), 0.004); b.box(0.16, 0.16, 0.012, -0.16, 0.12, 0.012, cloth, 0.004); b.box(0.16, 0.04, 0.012, 0.05, 0.18, 0.012, cloth, 0.004);
-+  b.sph(0.02, -0.37, 0.38, 0, met("#FFD27A"), undefined, 8); b.sph(0.02, 0.37, 0.38, 0, met("#FFD27A"), undefined, 8); return b.done();
-+});
-+D("r-cup", "Champion cup", "decor", [0.24, 0.24, 0.42], ["#FFC857", "#C9CED6", "#E8A24A", "#F4EBDD", "#8D6BD4", "#3FB68B"], { reward: true, surface: 0.4 }, (s, c) => {
-+  const b = new B(s), m = met(c); b.box(0.22, 0.04, 0.22, 0, 0, 0, wood("#5B3A29"), 0.01); b.box(0.16, 0.06, 0.16, 0, 0.04, 0, wood("#8A5A3A"), 0.01); b.cyl(0.02, 0.035, 0.1, 0, 0.1, 0, m, undefined, 14);
-+  b.lathe([[0, 0], [0.04, 0], [0.09, 0.1], [0.11, 0.19], [0.105, 0.2], [0, 0.2]], 0, 0.2, 0, m, undefined, 22); b.tor(0.07, 0.012, -0.12, 0.38, 0, m, { r: [0, 0, 0] }, Math.PI); b.tor(0.07, 0.012, 0.12, 0.38, 0, m, { r: [0, 0, 0] }, Math.PI);
-+  b.box(0.08, 0.03, 0.006, 0, 0.055, 0.084, met("#FFE9A8"), 0.001); return b.done();
-+});
-+
- D("trophy", "Trophy", "decor", [0.16, 0.16, 0.3], ["#FFC857", "#C9CED6", "#E8A24A", "#F4EBDD", "#8D6BD4", "#3FB68B"], {}, (s, c) => {
-   const b = new B(s), m = met(c); b.box(0.14, 0.03, 0.14, 0, 0, 0, wood("#5B3A29"), 0.008); b.box(0.1, 0.04, 0.1, 0, 0.03, 0, wood("#8A5A3A"), 0.008); b.cyl(0.015, 0.025, 0.08, 0, 0.07, 0, m, undefined, 12);
-   b.lathe([[0, 0], [0.025, 0], [0.06, 0.07], [0.07, 0.12], [0.065, 0.13], [0, 0.13]], 0, 0.15, 0, m, undefined, 20); b.tor(0.045, 0.008, -0.07, 0.24, 0, m, { r: [0, 0, Math.PI] }, Math.PI); b.tor(0.045, 0.008, 0.07, 0.24, 0, m, { r: [0, 0, Math.PI] }, Math.PI);
-diff --git a/src/dorm/room.ts b/src/dorm/room.ts
---- a/src/dorm/room.ts
-+++ b/src/dorm/room.ts
-@@ -1,4 +1,5 @@
- /** UNIFY Academy: My Dorm room. Builds the campus dorm, hotspots, the furniture editor (snap, collide, stack, undo) and persistence. */
-+import { hasReward } from "./rewards";
- import * as THREE from "three";
- import { B, CATALOG, FurnitureDefX, canvasTex, cvs, disposeTree, mk, nightFactor, releaseMaterials, rng, shade } from "./furniture";
- import { DORM_KEY } from "./types";
-@@ -369,7 +370,7 @@
-     setEditing(on) { editing = on; if (!on) select(null); showSel(); hl.g.visible = false; hoverUid = null; },
-     get editing() { return editing; },
-     select, onChange(cb) { changeCbs.push(cb); }, onSelect(cb) { selectCbs.push(cb); },
--    catalog: () => CATALOG,
-+    catalog: () => CATALOG.filter((d) => !d.reward || hasReward(d.id)),
-     add: (id, color) => spawn(id, color),
-     moveSelected(dx, dz) { const e = selEntry(); if (!e) return; const x = e.p.x + dx, z = e.p.z + dz; if (tryMove(e, x, z) || tryMove(e, x, e.p.z) || tryMove(e, e.p.x, z)) { refreshHotspots(); commit(); } },
-     rotateSelected(q) { const e = selEntry(); if (!e || e.def.wall) return; const r = e.p.rot + q * Math.PI / 2; const nr = Math.atan2(Math.sin(r), Math.cos(r)); if (tryMove(e, e.p.x, e.p.z, nr)) { refreshHotspots(); commit(); } },
-diff --git a/src/game/quests.ts b/src/game/quests.ts
---- a/src/game/quests.ts
-+++ b/src/game/quests.ts
-@@ -2,6 +2,7 @@
-  *  Everything is kind and optional: no timers, no losing things, and a missed day just restarts the streak counter. */
- import { Cosm, type Item } from "./cosmetics";
- import { eventThisWeek } from "./events";
-+import { grantReward, earnedBy } from "../dorm/rewards";
- export interface Template { id: string; ev: string; n: number; text: string; icon: string }
- export const TEMPLATES: Template[] = [
-   { id: "talk3", ev: "talk", n: 3, text: "Chat with 3 different people", icon: "💬" }, { id: "talk1", ev: "talk", n: 1, text: "Say hello to someone new", icon: "👋" },
-@@ -9,7 +10,7 @@
-   { id: "chow", ev: "chow", n: 1, text: "Sit at Chat Chow and join the table talk", icon: "🍽️" }, { id: "locker", ev: "locker", n: 1, text: "Decorate or visit a locker", icon: "🔒" },
-   { id: "assembly", ev: "assembly", n: 1, text: "Go to morning assembly", icon: "🎤" }, { id: "opendoor", ev: "opendoor", n: 1, text: "Peek into The Open Door classroom", icon: "🚪" },
-   { id: "game", ev: "game", n: 1, text: "Play a practice mini-game", icon: "🎮" }, { id: "trip", ev: "trip", n: 1, text: "Take a VR field trip", icon: "🥽" },
--  { id: "kind", ev: "kind", n: 1, text: "Do something kind (cheer someone up, say thanks)", icon: "💖" }, { id: "event", ev: "event", n: 1, text: "Join this week's event", icon: "🎉" }, { id: "club", ev: "club", n: 1, text: "Go to a club meeting", icon: "🎒" },
-+  { id: "pet", ev: "pet", n: 1, text: "Feed the class pet", icon: "🐾" }, { id: "kind", ev: "kind", n: 1, text: "Do something kind (cheer someone up, say thanks)", icon: "💖" }, { id: "event", ev: "event", n: 1, text: "Join this week's event", icon: "🎉" }, { id: "club", ev: "club", n: 1, text: "Go to a club meeting", icon: "🎒" },
- ];
- const KEY = "unify.quests.v1";
- interface St { day: string; prog: Record<string, number>; done: string[]; streak: number; lastDone: string; spirit: { week: string; pts: number }; talked: string[]; earned: string[] }
-@@ -43,7 +44,8 @@
-         got.push({ quest: t, item, spirit: pts, streak: s.streak });
-       }
-     }
--    write(s); for (const r of got) { try { dispatchEvent(new CustomEvent("unify:quest-done", { detail: r })); } catch { /* none */ } }
-+    write(s); for (const id of earnedBy({ streak: got.length ? s.streak : 0 })) grantReward(id);
-+    for (const r of got) { try { dispatchEvent(new CustomEvent("unify:quest-done", { detail: r })); } catch { /* none */ } }
-     return got;
-   },
-   spirit() { const s = read(); return { pts: s.spirit.pts, goal: SPIRIT_GOAL, full: s.spirit.pts >= SPIRIT_GOAL }; },
-diff --git a/src/hall3d/HallScene.ts b/src/hall3d/HallScene.ts
---- a/src/hall3d/HallScene.ts
-+++ b/src/hall3d/HallScene.ts
-@@ -1,3 +1,4 @@
-+import { momentFor } from "./daily";
- import { Events } from "../game/events";
- import * as THREE from "three";
- import { Beam } from "../shared/beam";
-@@ -1566,6 +1567,7 @@
-       }
-       else if (P.kind === "lunch") { const buddy = s.def && Social.peek(s.def.id)?.lunchBuddy && near[ni]; s.pending = { delay: rnd(0, 10), dest: buddy ? near[ni++]! : (spots[n % Math.max(1, spots.length)] || ent), hide: false, appear: s.hidden ? s.lastDoor : undefined }; }
-       else if (P.kind === "arrive") {
-+        { const m = momentFor(); setTimeout(() => this.onToast(`${m.icon} ${m.title}: ${m.text}`), 5000); }
-         if (this.bus && this.busState && this.busState.mode === "idle") { this.bus.visible = true; this.bus.position.x = this.busState.from; this.busState.t = 0; this.busState.mode = "in"; this.busState.arm.visible = false; }
-         this.kickCars();
-         const carRide = n % 2 === 1, rideN = Math.floor(n / 2), stop = OUTSIDE.cars[rideN % OUTSIDE.cars.length];
-diff --git a/src/hall3d/hubui.ts b/src/hall3d/hubui.ts
---- a/src/hall3d/hubui.ts
-+++ b/src/hall3d/hubui.ts
-@@ -6,6 +6,10 @@
- import { Quests, todays, SPIRIT_GOAL } from "../game/quests";
- import { Safety, parentUnlocked } from "../game/safety";
- import { communityTab } from "./communityui";
-+import { Progress, ALL_SUBJECTS, SUBJECT_NAME } from "../game/progress";
-+import { CURRICULUM } from "../class3d/curriculum";
-+import { stampBar, readLessonCounts } from "../game/stamps";
-+import { loadPet, petMood } from "../class3d/pet";
- const CSS = `.hb{position:fixed;inset:0;z-index:70;background:rgba(74,59,63,.45);display:none;align-items:center;justify-content:center;font-family:"Fredoka","Trebuchet MS",system-ui,sans-serif;color:#4A3B3F}.hb.show{display:flex}
- .hb-p{background:#F3E7CF;border:1px solid #fff;border-radius:20px;box-shadow:0 3px 0 #C9B28A,0 18px 36px rgba(0,0,0,.4);width:min(720px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
- .hb-h{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #C9B28A}.hb-h h2{font-size:20px;flex:1}.hb-t{display:flex;gap:6px;padding:8px 12px;flex-wrap:wrap}
-@@ -38,12 +42,25 @@
-   E("small", "", sc, `Streak: ${st} day${st === 1 ? "" : "s"} 🔥 (a missed day just starts a fresh streak, nothing is lost)`).style.display = "block";
-   E("h3", "", b, "Today's quests");
-   for (const t of todays()) { const done = Quests.isDone(t), c = E("div", "hb-card hb-q" + (done ? " done" : ""), b); E("span", "ic", c, t.icon); const x = E("div", "", c); E("b", "", x, t.text); E("small", "", x, `${Quests.progress(t)}/${t.n}`).style.display = "block"; }
-+  stampCard(b);
-   E("h3", "", b, "Jump in"); const r = E("div", "hb-row", b);
-+  E("button", "hb-b go", r, "🎒 Club Corner").onclick = () => { window.open("clubs3d.html", "_blank"); };
-   if (hooks.openGames) E("button", "hb-b go", r, "🎮 Practice games").onclick = () => { hooks.openGames!(); };
-   E("button", "hb-b go", r, "📚 Curriculum app").onclick = () => { window.open("curriculum.html", "_blank"); };
-   if (hooks.openTrip) E("button", "hb-b go", r, "🥽 VR field trip").onclick = () => { hooks.openTrip!(); };
-   if (hooks.goTo) { E("button", "hb-b", r, "🚪 The Open Door").onclick = () => hooks.goTo!("open"); E("button", "hb-b", r, "🎭 Auditorium").onclick = () => hooks.goTo!("news"); }
-   void ev;
-+}
-+/** the stamp card: one row per subject, a star for every tenth of the lessons finished, plus the class pet's mood */
-+function stampCard(b: HTMLElement) {
-+  E("h3", "", b, "Your stamp card"); const card = E("div", "hb-card", b), counts = readLessonCounts(); let any = false;
-+  for (const s of ALL_SUBJECTS) {
-+    const n = Progress.doneCount(s), total = Math.max(counts[s] ?? 0, CURRICULUM[s]?.length ?? 0);
-+    const known = !!counts[s]; if (!known && !n) continue; any = true; const row = E("div", "hb-row", card); row.style.justifyContent = "space-between"; E("b", "", row, SUBJECT_NAME[s]);
-+    E("span", "", row, known ? `${stampBar(n, total)}  ${Math.min(n, total)}/${total}` : `${n} finished`).title = `${n} lesson${n === 1 ? "" : "s"} finished`;
-+  }
-+  if (!any) E("small", "", card, "Finish a lesson to earn your first stamp.");
-+  const pet = loadPet(); if (pet) { const m = petMood(pet), r = E("div", "hb-row", card); r.style.marginTop = "6px"; E("small", "", r, `🐾 ${pet.name} is ${m === 3 ? "happy" : m === 2 ? "a little peckish" : "hungry"} ${"♥".repeat(m)}${"♡".repeat(3 - m)}. Feed it in the classroom.`); }
- }
- function choiceRow(parent: HTMLElement, label: string, opts: { id: string; label: string; color?: string; emoji?: string }[], cur: string | undefined, set: (id: string) => void) {
-   E("h3", "", parent, label); const r = E("div", "hb-row", parent); for (const o of opts) { const b = E("button", "hb-b" + (o.id === cur ? " on" : ""), r, `${o.emoji ?? ""} ${o.label}`.trim()); if (o.color) b.style.borderLeft = `8px solid ${o.color}`; b.onclick = () => set(o.id); }
-diff --git a/tests/smoke.mjs b/tests/smoke.mjs
---- a/tests/smoke.mjs
-+++ b/tests/smoke.mjs
-@@ -9,9 +9,14 @@
- const PORT = process.env.SMOKE_PORT || "8799";
- const BASE = `http://127.0.0.1:${PORT}`;
- // page -> must contain a <canvas> after load (3D scenes)
-+// Time for the first 3D frame in software GL (SwiftShader on CI). The hallway builds the most shader programs (~55 on the first frame),
-+// and SwiftShader compiles them in one go, which freezes the page for ~75 s on a 4-core box and more than 150 s on a GitHub runner.
-+// A real GPU does this in a second or two. Script errors and 404s are still checked on every page; only the start-up wait is longer.
-+const CANVAS_MS = { "hallway3d.html": 300000 };
-+const canvasMs = (page) => Number(process.env.SMOKE_CANVAS_MS) || CANVAS_MS[page] || 150000;
- const PAGES = [
-   ["index.html", false], ["hallway3d.html", true], ["classroom3d.html", true], ["auditorium3d.html", true],
--  ["news.html", false], ["phone.html", false], ["opendoor.html", false], ["fieldtrip.html", true],
-+  ["news.html", false], ["phone.html", false], ["opendoor.html", false], ["fieldtrip.html", true], ["clubs3d.html", true],
-   ["curriculum.html", false], ["parent.html", false], ["mail.html", false], ["newsdesk.html", false], ["dorm.html", true],
-   // earlier versions and prototypes: kept and shipped too
-   ["pages.html", false], ["auditorium.html", true], ["hallway.html", true], ["new.html", false], ["prototypes/newsroom-enhanced.html", false],
-@@ -52,7 +57,7 @@
-     const res = await p.goto(`${BASE}/${page}`, { waitUntil: needsCanvas ? "commit" : "domcontentloaded", timeout: 60000 });
-     if (!res || !res.ok()) problems.push(`page status ${res && res.status()}`);
-     // 3D scenes can take a minute to start in software GL (CI/sandbox); a phone GPU does it in seconds
--    if (needsCanvas) { try { await p.waitForSelector("canvas", { timeout: 150000, state: "attached" }); } catch { problems.push("no <canvas> appeared within 150s"); } }
-+    if (needsCanvas) { const ms = canvasMs(page); try { await p.waitForSelector("canvas", { timeout: ms, state: "attached" }); } catch { problems.push(`no <canvas> appeared within ${ms / 1000}s`); } }
-     await p.waitForTimeout(needsCanvas ? 5000 : (page === "index.html" ? 8000 : 3000));
-     if (process.env.SMOKE_SHOTS) await p.screenshot({ path: `${process.env.SMOKE_SHOTS}/${page.replace(/\//g, "_")}.png` }).catch(() => {});
-   } catch (e) { problems.push("load failed: " + e.message.split("\n")[0]); }
-diff --git a/tools/build_netlify.py b/tools/build_netlify.py
---- a/tools/build_netlify.py
-+++ b/tools/build_netlify.py
-@@ -42,15 +42,23 @@
-         + [f"curriculum-seed-{i}.js" for i in range(1, 10)]
-         + ["validate-curriculum-seed.js"]
-     )
--    if all(os.path.exists(os.path.join(ROOT, f)) for f in need):
-+    def have(f):
-+        # validate-curriculum-seed.js now lives in tests/, so look there as well as at the repo root
-+        return os.path.exists(os.path.join(ROOT, f)) or os.path.exists(os.path.join(ROOT, "tests", f))
-+
-+    missing = {f for f in need if not have(f)}
-+    if not missing:
-         return
-     parts = sorted(glob.glob(os.path.join(ROOT, "tools/assets/payload/p*.txt")))
-     if not parts:
-         return
-     data = base64.b64decode("".join(read(p).strip() for p in parts))
-     with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tf:
--        tf.extractall(ROOT, filter="data")
--    print(f"[build] restored {len(parts)} payload parts ({len(data)} bytes) into {ROOT}")
-+        # only fill in what is missing: never overwrite a file that already exists (the archive is older than the repo's own copies)
-+        wanted = [m for m in tf.getmembers() if m.isfile() and m.name in missing]
-+        for m in wanted:
-+            tf.extract(m, ROOT, filter="data")
-+    print(f"[build] restored {len(wanted)} missing file(s) from {len(parts)} payload parts: {', '.join(m.name for m in wanted) or 'none'}")
- 
- 
- _restore_payload()
-@@ -65,7 +73,7 @@
-     "news.html",
-     "phone.html",
-     "opendoor.html",
--    "fieldtrip.html",
-+    "clubs3d.html", "fieldtrip.html",
-     "curriculum.html",
-     "parent.html",
-     "mail.html",
 diff --git a/src/class3d/pet.ts b/src/class3d/pet.ts
 new file mode 100644
+index 0000000..a5be9b6
 --- /dev/null
 +++ b/src/class3d/pet.ts
 @@ -0,0 +1,98 @@
@@ -478,235 +349,62 @@ new file mode 100644
 +    const c = document.createElement("div"); c.id = "petChip"; Object.assign(c.style, { position: "absolute", zIndex: "30", left: "10px", bottom: "calc(36px + env(safe-area-inset-bottom,0px))", display: "flex", alignItems: "center", gap: "8px", padding: "6px 10px", borderRadius: "14px", background: "rgba(255,246,234,.94)", color: "#3b3552", font: "600 13px 'Trebuchet MS',sans-serif", boxShadow: "0 2px 8px rgba(0,0,0,.18)" }); host.appendChild(c); return c;
 +  }
 +}
-diff --git a/src/dorm/rewards.ts b/src/dorm/rewards.ts
+diff --git a/src/class3d/sequence.ts b/src/class3d/sequence.ts
 new file mode 100644
+index 0000000..4c8583a
 --- /dev/null
-+++ b/src/dorm/rewards.ts
-@@ -0,0 +1,27 @@
-+/** Dorm rewards: special furniture that is earned (not bought) by looking after the class pet and by finishing daily quests.
-+ *  The dorm picker only lists a reward once it has been earned; a reward that is already placed in a room stays there.
-+ *  Kept on this device ("unify.dormrewards.v1"). Nothing is ever taken away. */
-+export interface DormReward { id: string; name: string; how: string }
-+export const DORM_REWARDS: DormReward[] = [
-+  { id: "r-petcage", name: "Pet cage", how: "Feed the class pet 3 times" },
-+  { id: "r-pennant", name: "Spirit pennant", how: "Finish daily quests 3 days in a row" },
-+  { id: "r-cup", name: "Champion cup", how: "Finish daily quests 5 days in a row" },
-+];
-+const KEY = "unify.dormrewards.v1";
-+export const rewardIds = (): string[] => { try { const a = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(a) ? a.filter((x) => DORM_REWARDS.some((r) => r.id === x)) : []; } catch { return []; } };
-+export const hasReward = (id: string) => rewardIds().includes(id);
-+/** earn a reward; returns it when it is new (and tells other pages), or null when already owned or unknown */
-+export function grantReward(id: string): DormReward | null {
-+  const r = DORM_REWARDS.find((x) => x.id === id); if (!r || hasReward(id)) return null;
-+  try { localStorage.setItem(KEY, JSON.stringify([...rewardIds(), id])); } catch { return null; }
-+  try { dispatchEvent(new CustomEvent("unify:dorm-reward", { detail: r })); } catch { /* none */ }
-+  announce(r); return r;
-+}
-+/** what a given progress level has earned (pure, used by the hooks and the tests) */
-+export const earnedBy = (p: { petFeeds?: number; streak?: number }): string[] => [...((p.petFeeds ?? 0) >= 3 ? ["r-petcage"] : []), ...((p.streak ?? 0) >= 3 ? ["r-pennant"] : []), ...((p.streak ?? 0) >= 5 ? ["r-cup"] : [])];
-+/** a small thank-you note on whichever page earned it */
-+function announce(r: DormReward) {
-+  if (typeof document === "undefined") return; const d = document.createElement("div"); d.textContent = `🎁 New dorm item: ${r.name}! Find it in My Dorm, under Add furniture.`;
-+  Object.assign(d.style, { position: "fixed", left: "50%", top: "18px", transform: "translateX(-50%)", zIndex: "80", maxWidth: "90vw", padding: "10px 16px", borderRadius: "14px", background: "#FFF6EA", color: "#3b3552", font: "600 14px 'Trebuchet MS',sans-serif", boxShadow: "0 4px 16px rgba(0,0,0,.25)", textAlign: "center" });
-+  document.body.appendChild(d); setTimeout(() => d.remove(), 7000);
-+}
-diff --git a/src/game/buddy.ts b/src/game/buddy.ts
-new file mode 100644
---- /dev/null
-+++ b/src/game/buddy.ts
-@@ -0,0 +1,32 @@
-+/** Study buddy "Sparky": a friendly helper in class that gives hints, never answers. Three levels: a nudge, a strategy, then a way to ask for help.
-+ *  After that it asks a "teach it back" question. All wording is rule-based (no AI needed) and kind; it always points back to the lesson and the teacher. */
-+export const BUDDY_NAME = "Sparky";
-+export type BuddySubject = "math" | "ela" | "science" | "history" | "careers" | "life";
-+const NUDGE: Record<BuddySubject, string> = {
-+  math: "Look at what the problem is really asking. Circle the numbers, then say in your own words what you need to find.",
-+  ela: "Go back to the text and find the line that fits. Which words in the question match words in the passage?",
-+  science: "Think about what you can observe. What changed, and what stayed the same?",
-+  history: "Ask who, what, when and why. Which of those is the question asking about?",
-+  careers: "Picture someone doing this job today. What would they need to know first?",
-+  life: "Think about how you would feel, and how the other person might feel. What would a good friend do?",
-+};
-+const STRATEGY: Record<BuddySubject, string> = {
-+  math: "Try a smaller version of the problem, or draw it. Pictures and easy numbers can show the pattern.",
-+  ela: "Read the sentence before and after it. Then cross out choices that cannot be right and pick from what is left.",
-+  science: "Make a quick prediction, then check it against the lesson. Sketching a diagram can help.",
-+  history: "Put the events in order on a mini timeline. Seeing what came first often shows the reason.",
-+  careers: "List three skills that job uses. Which of them have you already practised?",
-+  life: "Write two choices and one result for each. Which result are you proudest of?",
-+};
-+const ASK = "You are close! Press Raise hand and ask your teacher, or look at the lesson step again. Asking is part of learning.";
-+const TEACH = [
-+  (t: string) => `Teach it back: explain "${t}" in one sentence, as if to a younger friend.`,
-+  (t: string) => `Can you think of a real-life example of "${t}"?`,
-+  (t: string) => `What was the trickiest part of "${t}", and what helped you with it?`,
-+  (t: string) => `If you had to make a question about "${t}", what would you ask?`,
-+];
-+/** the nth press of the buddy button for one lesson: nudge, strategy, ask-for-help, then teach-back prompts (cycling) */
-+export function buddySay(subject: string, lessonTitle: string, press: number): string {
-+  const s = (subject in NUDGE ? subject : "life") as BuddySubject, t = lessonTitle.replace(/[<>]/g, "").slice(0, 60) || "this lesson", n = Math.max(0, press);
-+  if (n === 0) return NUDGE[s]; if (n === 1) return STRATEGY[s]; if (n === 2) return ASK; return TEACH[(n - 3) % TEACH.length](t);
-+}
-diff --git a/src/game/stamps.ts b/src/game/stamps.ts
-new file mode 100644
---- /dev/null
-+++ b/src/game/stamps.ts
-@@ -0,0 +1,15 @@
-+/** Lesson stamps: finishing a lesson earns a stamp in that subject's stamp card. The card has a stamp for every lesson, and the 5th, 10th and 20th
-+ *  stamp in a subject is a milestone with a little cheer. Pure text rules; counts come from Progress.doneCount. */
-+export interface Stamp { n: number; of: number; text: string; milestone: boolean }
-+export const MILESTONES = [5, 10, 20, 40];
-+export function stampFor(subjectName: string, n: number, of: number): Stamp {
-+  const total = Math.max(of, n), milestone = MILESTONES.includes(n) || (n === total && total > 1);
-+  const left = total - n, tail = n === total && total > 1 ? " You finished every lesson in this subject!" : milestone ? " A milestone. Great work!" : left > 0 && left <= 3 ? ` Only ${left} to go.` : "";
-+  return { n, of: total, milestone, text: `🏅 Stamp ${n} of ${total} in ${subjectName}!${tail}` };
-+}
-+export const stampBar = (n: number, of: number, width = 10): string => { const t = Math.max(1, of), f = Math.min(width, Math.round((Math.min(n, t) / t) * width)); return "★".repeat(f) + "☆".repeat(width - f); };
++++ b/src/class3d/sequence.ts
+@@ -0,0 +1,47 @@
++/** Curriculum sequence: one row per subject for the curriculum home page.
++ *  The account has one enrollment grade; each subject can sit at a different level.
++ *  Next is the first shelf lesson in that level not marked studied. A lesson is ready to teach when it has a script. */
++import { CURRICULUM, type LessonDef } from "./curriculum";
++import { ELECTIVES } from "./packs";
++import { parentGrade, subjectGrade, gradesLabel } from "./gradeband";
++import { SUBJECT_NAME, Progress } from "../game/progress";
++import type { Subject } from "../game/types";
 +
-+/** how many lessons each subject really has: the classroom loads the lesson packs and saves the totals so other pages (the Today panel) can show them */
-+const CKEY = "unify.lessoncounts.v1";
-+export const saveLessonCounts = (c: Record<string, number>) => { try { localStorage.setItem(CKEY, JSON.stringify(c)); } catch { /* private mode */ } };
-+export const readLessonCounts = (): Record<string, number> => { try { const o = JSON.parse(localStorage.getItem(CKEY) || "{}"); return o && typeof o === "object" ? Object.fromEntries(Object.entries(o as Record<string, unknown>).filter(([, v]) => Number.isFinite(Number(v)) && Number(v) > 0).map(([k, v]) => [k, Math.floor(Number(v))])) : {}; } catch { return {}; } };
-diff --git a/src/game/weekly.ts b/src/game/weekly.ts
-new file mode 100644
---- /dev/null
-+++ b/src/game/weekly.ts
-@@ -0,0 +1,29 @@
-+/** The weekly summary for parents: a short, kind, plain-language look at what a child did, built only from data the child's device already syncs
-+ *  (progress, daily quests, class pet, earned dorm rewards). It never ranks or compares children and never shows scores as grades. */
-+import { SUBJECT_NAME, type Subject } from "./progress";
-+export interface WeekRaw { progress?: any; quests?: any; pet?: any; rewards?: any }
-+export interface Week { days: number; subjects: string[]; lessons: { subject: string; n: number }[]; lessonTotal: number; questsToday: number; streak: number; spiritPts: number; pet: { name: string; kind: string; streak: number; total: number } | null; rewards: string[]; lines: string[] }
-+const dk = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-+const obj = (v: any) => (v && typeof v === "object" && !Array.isArray(v) ? v : {});
-+const parse = (v: any) => { if (typeof v === "string") { try { return JSON.parse(v); } catch { return null; } } return v; };
-+const nm = (s: string) => (SUBJECT_NAME as Record<string, string>)[s] ?? s.replace(/^./, (c) => c.toUpperCase());
-+const RW: Record<string, string> = { "r-petcage": "Pet cage", "r-pennant": "Spirit pennant", "r-cup": "Champion cup" };
-+const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
-+export function weekly(raw: WeekRaw, today = new Date()): Week {
-+  const pr = obj(parse(raw.progress)), qs = obj(parse(raw.quests)), pet = obj(parse(raw.pet)), rw = parse(raw.rewards);
-+  const last7 = new Set<string>(); for (let i = 0; i < 7; i++) last7.add(dk(new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)));
-+  const days = obj(pr.days), active = Object.keys(days).filter((d) => last7.has(d) && Object.keys(obj(days[d])).length > 0), subj = new Set<string>();
-+  for (const d of active) for (const k of Object.keys(obj(days[d]))) subj.add(nm(k.replace("-extra", "")));
-+  const done = obj(pr.done), lessons = Object.keys(done).map((s) => ({ subject: nm(s), n: Array.isArray(done[s]) ? done[s].length : 0 })).filter((x) => x.n > 0).sort((a, b) => b.n - a.n), lessonTotal = lessons.reduce((n, x) => n + x.n, 0);
-+  const qToday = qs.day === dk(today) && Array.isArray(qs.done) ? qs.done.length : 0, yest = dk(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1));
-+  const streak = qs.lastDone === dk(today) || qs.lastDone === yest ? Math.max(0, +qs.streak || 0) : 0, spiritPts = qs.spirit && qs.spirit.week ? Math.max(0, +qs.spirit.pts || 0) : 0;
-+  const p = pet && typeof pet.name === "string" && pet.name ? { name: String(pet.name).slice(0, 14), kind: String(pet.kind || ""), streak: Math.max(0, +pet.streak || 0), total: Math.max(0, +pet.total || 0) } : null;
-+  const rewards = (Array.isArray(rw) ? rw : []).map((id: string) => RW[id]).filter(Boolean);
-+  const lines: string[] = [];
-+  lines.push(active.length ? `Joined class on ${plural(active.length, "day")} this week${subj.size ? ` (${[...subj].join(", ")})` : ""}.` : "No classes picked this week yet. A quick visit is a nice way to start.");
-+  if (lessonTotal) lines.push(`${plural(lessonTotal, "lesson")} finished so far${lessons.length ? `, most in ${lessons[0].subject}` : ""}.`);
-+  if (streak >= 2) lines.push(`Daily quest streak: ${streak} days in a row.`); else if (qToday) lines.push(`Finished ${plural(qToday, "daily quest")} today.`);
-+  if (p) lines.push(p.total ? `Looks after the class pet ${p.name}${p.streak >= 2 ? `, fed ${p.streak} days in a row` : ""}.` : `Has met the class pet ${p.name}.`);
-+  if (rewards.length) lines.push(`Earned for the dorm: ${rewards.join(", ")}.`);
-+  return { days: active.length, subjects: [...subj], lessons, lessonTotal, questsToday: qToday, streak, spiritPts, pet: p, rewards, lines };
++export interface SequenceRow {
++  subject: Subject; name: string;
++  /** subject level 0-12 (subject level, else enrollment grade); null when neither is set */
++  band: number | null;
++  scope: string; prereq: string;
++  studied: number; shelf: number; ready: number;
++  note: string; next: LessonDef | null;
++  /** enrollment grade 0-12 (0 = K), or null */
++  official: number | null;
 +}
-diff --git a/src/hall3d/daily.ts b/src/hall3d/daily.ts
-new file mode 100644
---- /dev/null
-+++ b/src/hall3d/daily.ts
-@@ -0,0 +1,22 @@
-+/** A small "moment of the day" announced at morning arrival, so no two school days feel the same.
-+ *  Gentle and optional: a kindness idea, a fun fact, a challenge. The weekly events (Spirit Week, Picture Day...) live in src/game/events.ts. */
-+export interface Moment { id: string; icon: string; title: string; text: string }
-+export const MOMENTS: Moment[] = [
-+  { id: "kind", icon: "💛", title: "Kindness Monday", text: "Today's idea: say one kind thing to someone in the hallway." },
-+  { id: "fact", icon: "🌟", title: "Mystery fact", text: "Did you know? Octopuses have three hearts. Can you find out how many hearts you have?" },
-+  { id: "pet", icon: "🐾", title: "Class pet check-in", text: "Good morning! Has the class pet had its breakfast? Look for the pen in the classroom corner." },
-+  { id: "read", icon: "📖", title: "Reading minute", text: "Find a quiet spot and read one page of anything you like before class." },
-+  { id: "gratitude", icon: "🍀", title: "Thankful minute", text: "Think of one thing you are thankful for today. Share it with a friend if you like." },
-+  { id: "stretch", icon: "🧘", title: "Stretch break", text: "Reach up high, then touch your toes. A good stretch wakes up the brain." },
-+  { id: "riddle", icon: "🧩", title: "Riddle of the day", text: "What has hands but cannot clap? (Hint: look at the wall in your classroom.)" },
-+  { id: "compliment", icon: "🌈", title: "Compliment chain", text: "Give a compliment today, and pass the chain along when you get one." },
-+  { id: "weather", icon: "⛅", title: "Weather watch", text: "Look out of a window. What is the sky doing right now? Sunny, cloudy, rainy?" },
-+  { id: "word", icon: "🔤", title: "Word of the day", text: "Today's word is 'curious'. Try using it in a sentence in class." },
-+  { id: "tidy", icon: "🧹", title: "Tidy-up team", text: "Leave your space a little tidier than you found it. Small helps add up." },
-+  { id: "music", icon: "🎵", title: "Hum a tune", text: "Hum your favourite song while you walk. Can anyone guess what it is?" },
-+  { id: "buddy", icon: "🤝", title: "Buddy day", text: "Say hello to someone you do not know well yet. New friends are everywhere." },
-+  { id: "goal", icon: "🎯", title: "One goal", text: "Pick one thing you want to do well today, and tell yourself when you did it." },
-+];
-+export const dayNumber = (d = new Date()) => Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5);
-+/** the same moment for everyone on the same day; consecutive days never repeat */
-+export const momentFor = (d = new Date()): Moment => MOMENTS[dayNumber(d) % MOMENTS.length];
-diff --git a/demo/weekly.ts b/demo/weekly.ts
-new file mode 100644
---- /dev/null
-+++ b/demo/weekly.ts
-@@ -0,0 +1,2 @@
-+import { weekly } from "../src/game/weekly";
-+(window as any).__weekly = { weekly };
-diff --git a/clubs3d.html b/clubs3d.html
-new file mode 100644
---- /dev/null
-+++ b/clubs3d.html
-@@ -0,0 +1,32 @@
-+<!DOCTYPE html>
-+<html lang="en">
-+<head>
-+<meta charset="utf-8">
-+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-+<title>UNIFY Club Corner</title>
-+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap">
-+<style>
-+:root{--kraft:#F3E7CF;--edge:#C9B28A;--ink:#4A3B3F;--acc:#E07A66;--ui:"Fredoka","Trebuchet MS",system-ui,sans-serif}
-+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-+html,body{height:100%;background:#F6E6CF;color:var(--ink);font-family:var(--ui);overflow:hidden;user-select:none}
-+#game{position:absolute;inset:0}#game canvas{display:block;width:100%;height:100%}
-+button{font:inherit;font-size:14px;color:var(--ink);background:var(--kraft);border:1px solid rgba(255,255,255,.7);border-radius:12px;padding:6px 12px;min-height:38px;cursor:pointer;box-shadow:0 2px 0 var(--edge),0 5px 8px rgba(80,50,40,.25)}
-+button:focus-visible{outline:3px solid #3b3552;outline-offset:2px}button.go{background:var(--acc);color:#fff;border-color:var(--acc)}button.on{background:#3FB68B;color:#fff;border-color:#3FB68B}
-+#top{position:absolute;z-index:30;top:calc(10px + env(safe-area-inset-top,0px));left:10px;right:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-+#top .t{background:var(--kraft);border-radius:12px;padding:6px 12px;font-weight:600;box-shadow:0 2px 0 var(--edge)}
-+#list{position:absolute;z-index:30;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-+#list button{min-height:34px;font-size:13px;padding:4px 10px}#list button .d{opacity:.7;font-size:11px;margin-left:4px}
-+#pop{position:absolute;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,92vw);display:none;background:#FFF9F0;border-radius:20px;padding:16px 18px;box-shadow:0 12px 40px rgba(60,40,30,.4);border:3px solid var(--edge)}
-+#pop.show{display:block}#pop h2{font-size:22px;margin-bottom:4px}#pop p{font-size:15px;line-height:1.4;margin:4px 0}#pop .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}#pop small{opacity:.75}
-+#hint{position:absolute;z-index:20;left:50%;top:62px;transform:translateX(-50%);font-size:13px;background:rgba(255,249,240,.9);border-radius:10px;padding:4px 10px;pointer-events:none}
-+</style>
-+</head>
-+<body>
-+<div id="game"></div>
-+<div id="top"><button id="bBack">▲ Back to school</button><span class="t">🎒 Club Corner</span><button id="bToday">⭐ Today &amp; clubs</button></div>
-+<div id="hint">Tap a table to see the club. Drag to look around.</div>
-+<div id="pop" role="dialog" aria-modal="true" aria-labelledby="pT"><h2 id="pT"></h2><p id="pB"></p><p id="pM"></p><p><small id="pP"></small></p><div class="row"><button id="pJoin" class="go"></button><button id="pOpen">Open clubs &amp; meetings</button><button id="pX">Close</button></div></div>
-+<nav id="list" aria-label="Clubs"></nav>
-+<script src="demo/dist/clubs3d.js"></script>
-+</body>
-+</html>
-diff --git a/demo/clubs3d.ts b/demo/clubs3d.ts
-new file mode 100644
---- /dev/null
-+++ b/demo/clubs3d.ts
-@@ -0,0 +1,28 @@
-+import { ClubRoom3D, DAY_NAMES } from "../src/clubs3d/ClubRoom3D";
-+import { CLUBS, Clubs, type Club } from "../src/game/community";
-+import { openHub } from "../src/hall3d/hubui";
 +
-+const $ = (id: string) => document.getElementById(id)!;
-+const room = new ClubRoom3D($("game")); (window as any).__clubs = room;
-+let cur: Club | null = null;
-+const today = new Date().getDay();
++const ORDER: Subject[] = ["math", "ela", "science", "history", "careers", "life"];
++const gradeName = (g: number) => (g === 0 ? "K" : "grade " + g);
 +
-+function close() { $("pop").classList.remove("show"); cur = null; }
-+function show(c: Club) {
-+  cur = c; const mine = Clubs.mine().some((x) => x.id === c.id), meets = c.day === today;
-+  $("pT").textContent = `${c.icon} ${c.name}`; $("pB").textContent = c.blurb;
-+  $("pM").textContent = `Meets on ${DAY_NAMES[c.day]}s${meets ? ", and that is today!" : "."}`; $("pP").textContent = `Prize for taking part: ${c.prize}`;
-+  const j = $("pJoin") as HTMLButtonElement; j.textContent = mine ? "Leave this club" : "Join this club"; j.className = mine ? "" : "go";
-+  $("pop").classList.add("show"); j.focus();
++export function layout(): SequenceRow[] {
++  const official = parentGrade();
++  return ORDER.map((subject) => {
++    const shelf: LessonDef[] = [...CURRICULUM[subject], ...ELECTIVES[subject]];
++    const done = new Set(Progress.studiedIds(subject));
++    const own = Progress.level(subject);
++    const level = subjectGrade(subject);
++    const span = level == null ? "" : gradesLabel(String(level));
++    const inLevel = span ? shelf.filter((l) => l.grades && gradesLabel(l.grades) === span) : shelf;
++    const next = inLevel.find((l) => !done.has(l.id)) ?? null;
++    return {
++      subject, name: SUBJECT_NAME[subject], band: level, official,
++      scope: span ? `${inLevel.length} shelf lessons for grades ${span}.` : `${shelf.length} shelf lessons, no level set.`,
++      prereq: level == null ? "Set an enrollment grade or a subject level to narrow the sequence."
++        : own != null && own !== official ? `Placed at ${gradeName(own)} for this subject${official == null ? "" : `, enrolled in ${gradeName(official)}`}.`
++        : `Follows the enrollment grade (${gradeName(level)}).`,
++      studied: shelf.filter((l) => done.has(l.id)).length,
++      shelf: shelf.length,
++      ready: shelf.filter((l) => (l.script?.length ?? 0) > 0).length,
++      note: own != null ? "Using the subject level." : official != null ? "Using the enrollment grade." : "No grade set yet.",
++      next,
++    };
++  });
 +}
-+function paintList() {
-+  const mine = new Set(Clubs.mine().map((c) => c.id)), nav = $("list"); nav.innerHTML = "";
-+  for (const c of CLUBS) { const b = document.createElement("button"); b.type = "button"; b.className = mine.has(c.id) ? "on" : ""; b.append(`${c.icon} ${c.name}`); const d = document.createElement("span"); d.className = "d"; d.textContent = c.day === today ? "today" : DAY_NAMES[c.day].slice(0, 3); b.append(d); b.setAttribute("aria-label", `${c.name}, meets ${DAY_NAMES[c.day]}${mine.has(c.id) ? ", you are a member" : ""}`); b.onclick = () => show(c); nav.append(b); }
-+}
-+room.onPick = (c) => { if (c) show(c); else close(); };
-+$("pJoin").onclick = () => { if (!cur) return; const mine = Clubs.mine().some((x) => x.id === cur!.id); if (mine) Clubs.leave(cur.id); else Clubs.join(cur.id); room.refresh(); paintList(); show(cur); };
-+$("pOpen").onclick = () => { if (cur && !Clubs.mine().some((x) => x.id === cur!.id)) { Clubs.join(cur.id); room.refresh(); paintList(); } close(); openHub({ onClose: () => { room.refresh(); paintList(); } }, "Friends & clubs"); };
-+$("pX").onclick = close; addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
-+$("bToday").onclick = () => openHub({ onClose: () => { room.refresh(); paintList(); } }, "Today");
-+$("bBack").onclick = () => { if (parent !== window) parent.postMessage({ type: "unify:stage-exit" }, "*"); else if (history.length > 1) history.back(); else location.href = "hallway3d.html"; };
-+setTimeout(() => ($("hint").style.display = "none"), 9000); paintList();
 diff --git a/src/clubs3d/ClubRoom3D.ts b/src/clubs3d/ClubRoom3D.ts
 new file mode 100644
+index 0000000..15a3692
 --- /dev/null
 +++ b/src/clubs3d/ClubRoom3D.ts
 @@ -0,0 +1,116 @@
@@ -826,60 +524,319 @@ new file mode 100644
 +  };
 +  dispose() { this.alive = false; this.renderer.dispose(); this.renderer.domElement.remove(); }
 +}
-diff --git a/src/class3d/sequence.ts b/src/class3d/sequence.ts
+diff --git a/src/dorm/furniture.ts b/src/dorm/furniture.ts
+index 41fde8b..34ee34a 100644
+--- a/src/dorm/furniture.ts
++++ b/src/dorm/furniture.ts
+@@ -8,6 +8,7 @@ import type { FurnitureCat, FurnitureDef, MatKind, MatOpts, Style } from "./type
+ type V3 = [number, number, number];
+ export interface FurnitureDefX extends FurnitureDef {
+   /** default bottom height for wall items */ y0?: number;
++  /** earned, not bought: only listed in the picker once unlocked (see rewards.ts) */ reward?: boolean;
+   /** may overlap others (backpack on a chair) */ soft?: boolean;
+   /** free height below (loft bed): collisions only count above this */ under?: number;
+ }
+@@ -169,7 +170,7 @@ const TAPES = ["#ffe27a", "#ff9ec2", "#8fe3d4", "#b9a6ff"];
+ /* ------------------------------------------------------------------ catalogue plumbing */
+ export const CATALOG: FurnitureDefX[] = [];
+ type Build = (s: Style, c: string, v: number) => THREE.Object3D;
+-type Extra = Partial<Pick<FurnitureDefX, "wall" | "flat" | "surface" | "variants" | "core" | "y0" | "soft" | "under">>;
++type Extra = Partial<Pick<FurnitureDefX, "wall" | "flat" | "surface" | "variants" | "core" | "y0" | "soft" | "under" | "reward">>;
+ function D(id: string, name: string, cat: FurnitureCat, size: V3, colors: string[], ex: Extra, build: Build) {
+   CATALOG.push({ id, name, cat, size, colors, ...ex, build });
+ }
+@@ -479,6 +480,24 @@ D("globe", "Globe", "decor", [0.26, 0.26, 0.34], ["#4F91C7", "#E8567C", "#F2B138
+   const sp = new THREE.Mesh(new THREE.SphereGeometry(0.11, 24, 16), mark(s.mat("plastic", "#ffffff", { map: canvasTex(cv), rough: 0.4 }))); sp.position.set(0, 0.26, 0); sp.rotation.z = 0.4; sp.castShadow = true; g.add(sp);
+   ud(g).tick = (dt: number) => { sp.rotation.y += dt * 0.25; }; return g;
+ });
++/* ------------------------------------------------------------------ earned rewards (see rewards.ts) */
++D("r-petcage", "Pet cage", "decor", [0.5, 0.36, 0.42], ["#E8C99A", "#F4EBDD", "#E8567C", "#4F91C7", "#3FB68B", "#F2B138"], { reward: true, surface: 0.4 }, (s, c) => {
++  const b = new B(s), bar = met(c), base = wood("#8A5A3A"); b.box(0.5, 0.05, 0.36, 0, 0, 0, base, 0.01); b.box(0.5, 0.03, 0.36, 0, 0.37, 0, base, 0.01);
++  for (const x of [-0.23, -0.115, 0, 0.115, 0.23]) { b.cyl(0.006, 0.006, 0.32, x, 0.05, 0.165, bar, undefined, 6); b.cyl(0.006, 0.006, 0.32, x, 0.05, -0.165, bar, undefined, 6); }
++  for (const z of [-0.12, 0, 0.12]) { b.cyl(0.006, 0.006, 0.32, 0.245, 0.05, z, bar, undefined, 6); b.cyl(0.006, 0.006, 0.32, -0.245, 0.05, z, bar, undefined, 6); }
++  b.cyl(0.07, 0.07, 0.02, 0.1, 0.05, 0, wood("#EBD48A"), undefined, 14); b.sph(0.055, -0.1, 0.1, 0, pla("#F1E6D8"), { s: [1.2, 0.9, 1] }); b.tor(0.1, 0.007, -0.1, 0.17, 0, bar, { r: [Math.PI / 2, 0, 0] }); return b.done();
++});
++D("r-pennant", "Spirit pennant", "decor", [0.7, 0.04, 0.4], ["#E8604C", "#4F91C7", "#5FB37A", "#EAB94E", "#8E7CC3", "#2B2F3A"], { reward: true, wall: true, y0: 1.45 }, (s, c) => {
++  const b = new B(s), cloth = clo(c); b.cylH(0.012, 0.74, 0, 0.38, 0, wood("#8A5A3A"), "x", 8);
++  b.box(0.62, 0.34, 0.012, 0, 0.04, 0, cloth, 0.004); b.box(0.5, 0.2, 0.012, 0.05, 0.1, 0.006, clo("#FFFFFF"), 0.004); b.box(0.16, 0.16, 0.012, -0.16, 0.12, 0.012, cloth, 0.004); b.box(0.16, 0.04, 0.012, 0.05, 0.18, 0.012, cloth, 0.004);
++  b.sph(0.02, -0.37, 0.38, 0, met("#FFD27A"), undefined, 8); b.sph(0.02, 0.37, 0.38, 0, met("#FFD27A"), undefined, 8); return b.done();
++});
++D("r-cup", "Champion cup", "decor", [0.24, 0.24, 0.42], ["#FFC857", "#C9CED6", "#E8A24A", "#F4EBDD", "#8D6BD4", "#3FB68B"], { reward: true, surface: 0.4 }, (s, c) => {
++  const b = new B(s), m = met(c); b.box(0.22, 0.04, 0.22, 0, 0, 0, wood("#5B3A29"), 0.01); b.box(0.16, 0.06, 0.16, 0, 0.04, 0, wood("#8A5A3A"), 0.01); b.cyl(0.02, 0.035, 0.1, 0, 0.1, 0, m, undefined, 14);
++  b.lathe([[0, 0], [0.04, 0], [0.09, 0.1], [0.11, 0.19], [0.105, 0.2], [0, 0.2]], 0, 0.2, 0, m, undefined, 22); b.tor(0.07, 0.012, -0.12, 0.38, 0, m, { r: [0, 0, 0] }, Math.PI); b.tor(0.07, 0.012, 0.12, 0.38, 0, m, { r: [0, 0, 0] }, Math.PI);
++  b.box(0.08, 0.03, 0.006, 0, 0.055, 0.084, met("#FFE9A8"), 0.001); return b.done();
++});
++
+ D("trophy", "Trophy", "decor", [0.16, 0.16, 0.3], ["#FFC857", "#C9CED6", "#E8A24A", "#F4EBDD", "#8D6BD4", "#3FB68B"], {}, (s, c) => {
+   const b = new B(s), m = met(c); b.box(0.14, 0.03, 0.14, 0, 0, 0, wood("#5B3A29"), 0.008); b.box(0.1, 0.04, 0.1, 0, 0.03, 0, wood("#8A5A3A"), 0.008); b.cyl(0.015, 0.025, 0.08, 0, 0.07, 0, m, undefined, 12);
+   b.lathe([[0, 0], [0.025, 0], [0.06, 0.07], [0.07, 0.12], [0.065, 0.13], [0, 0.13]], 0, 0.15, 0, m, undefined, 20); b.tor(0.045, 0.008, -0.07, 0.24, 0, m, { r: [0, 0, 0] }, Math.PI); b.tor(0.045, 0.008, 0.07, 0.24, 0, m, { r: [0, 0, Math.PI] }, Math.PI);
+diff --git a/src/dorm/rewards.ts b/src/dorm/rewards.ts
 new file mode 100644
+index 0000000..745bbf3
 --- /dev/null
-+++ b/src/class3d/sequence.ts
-@@ -0,0 +1,47 @@
-+/** Curriculum sequence: one row per subject for the curriculum home page.
-+ *  The account has one enrollment grade; each subject can sit at a different level.
-+ *  Next is the first shelf lesson in that level not marked studied. A lesson is ready to teach when it has a script. */
-+import { CURRICULUM, type LessonDef } from "./curriculum";
-+import { ELECTIVES } from "./packs";
-+import { parentGrade, subjectGrade, gradesLabel } from "./gradeband";
-+import { SUBJECT_NAME, Progress } from "../game/progress";
-+import type { Subject } from "../game/types";
-+
-+export interface SequenceRow {
-+  subject: Subject; name: string;
-+  /** subject level 0-12 (subject level, else enrollment grade); null when neither is set */
-+  band: number | null;
-+  scope: string; prereq: string;
-+  studied: number; shelf: number; ready: number;
-+  note: string; next: LessonDef | null;
-+  /** enrollment grade 0-12 (0 = K), or null */
-+  official: number | null;
++++ b/src/dorm/rewards.ts
+@@ -0,0 +1,27 @@
++/** Dorm rewards: special furniture that is earned (not bought) by looking after the class pet and by finishing daily quests.
++ *  The dorm picker only lists a reward once it has been earned; a reward that is already placed in a room stays there.
++ *  Kept on this device ("unify.dormrewards.v1"). Nothing is ever taken away. */
++export interface DormReward { id: string; name: string; how: string }
++export const DORM_REWARDS: DormReward[] = [
++  { id: "r-petcage", name: "Pet cage", how: "Feed the class pet 3 times" },
++  { id: "r-pennant", name: "Spirit pennant", how: "Finish daily quests 3 days in a row" },
++  { id: "r-cup", name: "Champion cup", how: "Finish daily quests 5 days in a row" },
++];
++const KEY = "unify.dormrewards.v1";
++export const rewardIds = (): string[] => { try { const a = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(a) ? a.filter((x) => DORM_REWARDS.some((r) => r.id === x)) : []; } catch { return []; } };
++export const hasReward = (id: string) => rewardIds().includes(id);
++/** earn a reward; returns it when it is new (and tells other pages), or null when already owned or unknown */
++export function grantReward(id: string): DormReward | null {
++  const r = DORM_REWARDS.find((x) => x.id === id); if (!r || hasReward(id)) return null;
++  try { localStorage.setItem(KEY, JSON.stringify([...rewardIds(), id])); } catch { return null; }
++  try { dispatchEvent(new CustomEvent("unify:dorm-reward", { detail: r })); } catch { /* none */ }
++  announce(r); return r;
 +}
-+
-+const ORDER: Subject[] = ["math", "ela", "science", "history", "careers", "life"];
-+const gradeName = (g: number) => (g === 0 ? "K" : "grade " + g);
-+
-+export function layout(): SequenceRow[] {
-+  const official = parentGrade();
-+  return ORDER.map((subject) => {
-+    const shelf: LessonDef[] = [...CURRICULUM[subject], ...ELECTIVES[subject]];
-+    const done = new Set(Progress.studiedIds(subject));
-+    const own = Progress.level(subject);
-+    const level = subjectGrade(subject);
-+    const span = level == null ? "" : gradesLabel(String(level));
-+    const inLevel = span ? shelf.filter((l) => l.grades && gradesLabel(l.grades) === span) : shelf;
-+    const next = inLevel.find((l) => !done.has(l.id)) ?? null;
-+    return {
-+      subject, name: SUBJECT_NAME[subject], band: level, official,
-+      scope: span ? `${inLevel.length} shelf lessons for grades ${span}.` : `${shelf.length} shelf lessons, no level set.`,
-+      prereq: level == null ? "Set an enrollment grade or a subject level to narrow the sequence."
-+        : own != null && own !== official ? `Placed at ${gradeName(own)} for this subject${official == null ? "" : `, enrolled in ${gradeName(official)}`}.`
-+        : `Follows the enrollment grade (${gradeName(level)}).`,
-+      studied: shelf.filter((l) => done.has(l.id)).length,
-+      shelf: shelf.length,
-+      ready: shelf.filter((l) => (l.script?.length ?? 0) > 0).length,
-+      note: own != null ? "Using the subject level." : official != null ? "Using the enrollment grade." : "No grade set yet.",
-+      next,
-+    };
-+  });
++/** what a given progress level has earned (pure, used by the hooks and the tests) */
++export const earnedBy = (p: { petFeeds?: number; streak?: number }): string[] => [...((p.petFeeds ?? 0) >= 3 ? ["r-petcage"] : []), ...((p.streak ?? 0) >= 3 ? ["r-pennant"] : []), ...((p.streak ?? 0) >= 5 ? ["r-cup"] : [])];
++/** a small thank-you note on whichever page earned it */
++function announce(r: DormReward) {
++  if (typeof document === "undefined") return; const d = document.createElement("div"); d.textContent = `🎁 New dorm item: ${r.name}! Find it in My Dorm, under Add furniture.`;
++  Object.assign(d.style, { position: "fixed", left: "50%", top: "18px", transform: "translateX(-50%)", zIndex: "80", maxWidth: "90vw", padding: "10px 16px", borderRadius: "14px", background: "#FFF6EA", color: "#3b3552", font: "600 14px 'Trebuchet MS',sans-serif", boxShadow: "0 4px 16px rgba(0,0,0,.25)", textAlign: "center" });
++  document.body.appendChild(d); setTimeout(() => d.remove(), 7000);
 +}
+diff --git a/src/dorm/room.ts b/src/dorm/room.ts
+index 3845868..1036458 100644
+--- a/src/dorm/room.ts
++++ b/src/dorm/room.ts
+@@ -1,4 +1,5 @@
+ /** UNIFY Academy: My Dorm room. Builds the campus dorm, hotspots, the furniture editor (snap, collide, stack, undo) and persistence. */
++import { hasReward } from "./rewards";
+ import * as THREE from "three";
+ import { B, CATALOG, FurnitureDefX, canvasTex, cvs, disposeTree, mk, nightFactor, releaseMaterials, rng, shade } from "./furniture";
+ import { DORM_KEY } from "./types";
+@@ -369,7 +370,7 @@ export function createDorm(style: Style, layoutIn?: DormLayout): DormApiPlus {
+     setEditing(on) { editing = on; if (!on) select(null); showSel(); hl.g.visible = false; hoverUid = null; },
+     get editing() { return editing; },
+     select, onChange(cb) { changeCbs.push(cb); }, onSelect(cb) { selectCbs.push(cb); },
+-    catalog: () => CATALOG,
++    catalog: () => CATALOG.filter((d) => !d.reward || hasReward(d.id)),
+     add: (id, color) => spawn(id, color),
+     moveSelected(dx, dz) { const e = selEntry(); if (!e) return; const x = e.p.x + dx, z = e.p.z + dz; if (tryMove(e, x, z) || tryMove(e, x, e.p.z) || tryMove(e, e.p.x, z)) { refreshHotspots(); commit(); } },
+     rotateSelected(q) { const e = selEntry(); if (!e || e.def.wall) return; const r = e.p.rot + q * Math.PI / 2; const nr = Math.atan2(Math.sin(r), Math.cos(r)); if (tryMove(e, e.p.x, e.p.z, nr)) { refreshHotspots(); commit(); } },
+diff --git a/src/game/buddy.ts b/src/game/buddy.ts
+new file mode 100644
+index 0000000..f4facfc
+--- /dev/null
++++ b/src/game/buddy.ts
+@@ -0,0 +1,32 @@
++/** Study buddy "Sparky": a friendly helper in class that gives hints, never answers. Three levels: a nudge, a strategy, then a way to ask for help.
++ *  After that it asks a "teach it back" question. All wording is rule-based (no AI needed) and kind; it always points back to the lesson and the teacher. */
++export const BUDDY_NAME = "Sparky";
++export type BuddySubject = "math" | "ela" | "science" | "history" | "careers" | "life";
++const NUDGE: Record<BuddySubject, string> = {
++  math: "Look at what the problem is really asking. Circle the numbers, then say in your own words what you need to find.",
++  ela: "Go back to the text and find the line that fits. Which words in the question match words in the passage?",
++  science: "Think about what you can observe. What changed, and what stayed the same?",
++  history: "Ask who, what, when and why. Which of those is the question asking about?",
++  careers: "Picture someone doing this job today. What would they need to know first?",
++  life: "Think about how you would feel, and how the other person might feel. What would a good friend do?",
++};
++const STRATEGY: Record<BuddySubject, string> = {
++  math: "Try a smaller version of the problem, or draw it. Pictures and easy numbers can show the pattern.",
++  ela: "Read the sentence before and after it. Then cross out choices that cannot be right and pick from what is left.",
++  science: "Make a quick prediction, then check it against the lesson. Sketching a diagram can help.",
++  history: "Put the events in order on a mini timeline. Seeing what came first often shows the reason.",
++  careers: "List three skills that job uses. Which of them have you already practised?",
++  life: "Write two choices and one result for each. Which result are you proudest of?",
++};
++const ASK = "You are close! Press Raise hand and ask your teacher, or look at the lesson step again. Asking is part of learning.";
++const TEACH = [
++  (t: string) => `Teach it back: explain "${t}" in one sentence, as if to a younger friend.`,
++  (t: string) => `Can you think of a real-life example of "${t}"?`,
++  (t: string) => `What was the trickiest part of "${t}", and what helped you with it?`,
++  (t: string) => `If you had to make a question about "${t}", what would you ask?`,
++];
++/** the nth press of the buddy button for one lesson: nudge, strategy, ask-for-help, then teach-back prompts (cycling) */
++export function buddySay(subject: string, lessonTitle: string, press: number): string {
++  const s = (subject in NUDGE ? subject : "life") as BuddySubject, t = lessonTitle.replace(/[<>]/g, "").slice(0, 60) || "this lesson", n = Math.max(0, press);
++  if (n === 0) return NUDGE[s]; if (n === 1) return STRATEGY[s]; if (n === 2) return ASK; return TEACH[(n - 3) % TEACH.length](t);
++}
+diff --git a/src/game/quests.ts b/src/game/quests.ts
+index 3cf62bf..614c4b5 100644
+--- a/src/game/quests.ts
++++ b/src/game/quests.ts
+@@ -2,6 +2,7 @@
+  *  Everything is kind and optional: no timers, no losing things, and a missed day just restarts the streak counter. */
+ import { Cosm, type Item } from "./cosmetics";
+ import { eventThisWeek } from "./events";
++import { grantReward, earnedBy } from "../dorm/rewards";
+ export interface Template { id: string; ev: string; n: number; text: string; icon: string }
+ export const TEMPLATES: Template[] = [
+   { id: "talk3", ev: "talk", n: 3, text: "Chat with 3 different people", icon: "💬" }, { id: "talk1", ev: "talk", n: 1, text: "Say hello to someone new", icon: "👋" },
+@@ -9,7 +10,7 @@ export const TEMPLATES: Template[] = [
+   { id: "chow", ev: "chow", n: 1, text: "Sit at Chat Chow and join the table talk", icon: "🍽️" }, { id: "locker", ev: "locker", n: 1, text: "Decorate or visit a locker", icon: "🔒" },
+   { id: "assembly", ev: "assembly", n: 1, text: "Go to morning assembly", icon: "🎤" }, { id: "opendoor", ev: "opendoor", n: 1, text: "Peek into The Open Door classroom", icon: "🚪" },
+   { id: "game", ev: "game", n: 1, text: "Play a practice mini-game", icon: "🎮" }, { id: "trip", ev: "trip", n: 1, text: "Take a VR field trip", icon: "🥽" },
+-  { id: "kind", ev: "kind", n: 1, text: "Do something kind (cheer someone up, say thanks)", icon: "💖" }, { id: "event", ev: "event", n: 1, text: "Join this week's event", icon: "🎉" }, { id: "club", ev: "club", n: 1, text: "Go to a club meeting", icon: "🎒" },
++  { id: "pet", ev: "pet", n: 1, text: "Feed the class pet", icon: "🐾" }, { id: "kind", ev: "kind", n: 1, text: "Do something kind (cheer someone up, say thanks)", icon: "💖" }, { id: "event", ev: "event", n: 1, text: "Join this week's event", icon: "🎉" }, { id: "club", ev: "club", n: 1, text: "Go to a club meeting", icon: "🎒" },
+ ];
+ const KEY = "unify.quests.v1";
+ interface St { day: string; prog: Record<string, number>; done: string[]; streak: number; lastDone: string; spirit: { week: string; pts: number }; talked: string[]; earned: string[] }
+@@ -43,7 +44,8 @@ export const Quests = {
+         got.push({ quest: t, item, spirit: pts, streak: s.streak });
+       }
+     }
+-    write(s); for (const r of got) { try { dispatchEvent(new CustomEvent("unify:quest-done", { detail: r })); } catch { /* none */ } }
++    write(s); for (const id of earnedBy({ streak: got.length ? s.streak : 0 })) grantReward(id);
++    for (const r of got) { try { dispatchEvent(new CustomEvent("unify:quest-done", { detail: r })); } catch { /* none */ } }
+     return got;
+   },
+   spirit() { const s = read(); return { pts: s.spirit.pts, goal: SPIRIT_GOAL, full: s.spirit.pts >= SPIRIT_GOAL }; },
+diff --git a/src/game/stamps.ts b/src/game/stamps.ts
+new file mode 100644
+index 0000000..c16df3c
+--- /dev/null
++++ b/src/game/stamps.ts
+@@ -0,0 +1,15 @@
++/** Lesson stamps: finishing a lesson earns a stamp in that subject's stamp card. The card has a stamp for every lesson, and the 5th, 10th and 20th
++ *  stamp in a subject is a milestone with a little cheer. Pure text rules; counts come from Progress.doneCount. */
++export interface Stamp { n: number; of: number; text: string; milestone: boolean }
++export const MILESTONES = [5, 10, 20, 40];
++export function stampFor(subjectName: string, n: number, of: number): Stamp {
++  const total = Math.max(of, n), milestone = MILESTONES.includes(n) || (n === total && total > 1);
++  const left = total - n, tail = n === total && total > 1 ? " You finished every lesson in this subject!" : milestone ? " A milestone. Great work!" : left > 0 && left <= 3 ? ` Only ${left} to go.` : "";
++  return { n, of: total, milestone, text: `🏅 Stamp ${n} of ${total} in ${subjectName}!${tail}` };
++}
++export const stampBar = (n: number, of: number, width = 10): string => { const t = Math.max(1, of), f = Math.min(width, Math.round((Math.min(n, t) / t) * width)); return "★".repeat(f) + "☆".repeat(width - f); };
++
++/** how many lessons each subject really has: the classroom loads the lesson packs and saves the totals so other pages (the Today panel) can show them */
++const CKEY = "unify.lessoncounts.v1";
++export const saveLessonCounts = (c: Record<string, number>) => { try { localStorage.setItem(CKEY, JSON.stringify(c)); } catch { /* private mode */ } };
++export const readLessonCounts = (): Record<string, number> => { try { const o = JSON.parse(localStorage.getItem(CKEY) || "{}"); return o && typeof o === "object" ? Object.fromEntries(Object.entries(o as Record<string, unknown>).filter(([, v]) => Number.isFinite(Number(v)) && Number(v) > 0).map(([k, v]) => [k, Math.floor(Number(v))])) : {}; } catch { return {}; } };
+diff --git a/src/game/weekly.ts b/src/game/weekly.ts
+new file mode 100644
+index 0000000..2b930f2
+--- /dev/null
++++ b/src/game/weekly.ts
+@@ -0,0 +1,29 @@
++/** The weekly summary for parents: a short, kind, plain-language look at what a child did, built only from data the child's device already syncs
++ *  (progress, daily quests, class pet, earned dorm rewards). It never ranks or compares children and never shows scores as grades. */
++import { SUBJECT_NAME, type Subject } from "./progress";
++export interface WeekRaw { progress?: any; quests?: any; pet?: any; rewards?: any }
++export interface Week { days: number; subjects: string[]; lessons: { subject: string; n: number }[]; lessonTotal: number; questsToday: number; streak: number; spiritPts: number; pet: { name: string; kind: string; streak: number; total: number } | null; rewards: string[]; lines: string[] }
++const dk = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
++const obj = (v: any) => (v && typeof v === "object" && !Array.isArray(v) ? v : {});
++const parse = (v: any) => { if (typeof v === "string") { try { return JSON.parse(v); } catch { return null; } } return v; };
++const nm = (s: string) => (SUBJECT_NAME as Record<string, string>)[s] ?? s.replace(/^./, (c) => c.toUpperCase());
++const RW: Record<string, string> = { "r-petcage": "Pet cage", "r-pennant": "Spirit pennant", "r-cup": "Champion cup" };
++const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
++export function weekly(raw: WeekRaw, today = new Date()): Week {
++  const pr = obj(parse(raw.progress)), qs = obj(parse(raw.quests)), pet = obj(parse(raw.pet)), rw = parse(raw.rewards);
++  const last7 = new Set<string>(); for (let i = 0; i < 7; i++) last7.add(dk(new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)));
++  const days = obj(pr.days), active = Object.keys(days).filter((d) => last7.has(d) && Object.keys(obj(days[d])).length > 0), subj = new Set<string>();
++  for (const d of active) for (const k of Object.keys(obj(days[d]))) subj.add(nm(k.replace("-extra", "")));
++  const done = obj(pr.done), lessons = Object.keys(done).map((s) => ({ subject: nm(s), n: Array.isArray(done[s]) ? done[s].length : 0 })).filter((x) => x.n > 0).sort((a, b) => b.n - a.n), lessonTotal = lessons.reduce((n, x) => n + x.n, 0);
++  const qToday = qs.day === dk(today) && Array.isArray(qs.done) ? qs.done.length : 0, yest = dk(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1));
++  const streak = qs.lastDone === dk(today) || qs.lastDone === yest ? Math.max(0, +qs.streak || 0) : 0, spiritPts = qs.spirit && qs.spirit.week ? Math.max(0, +qs.spirit.pts || 0) : 0;
++  const p = pet && typeof pet.name === "string" && pet.name ? { name: String(pet.name).slice(0, 14), kind: String(pet.kind || ""), streak: Math.max(0, +pet.streak || 0), total: Math.max(0, +pet.total || 0) } : null;
++  const rewards = (Array.isArray(rw) ? rw : []).map((id: string) => RW[id]).filter(Boolean);
++  const lines: string[] = [];
++  lines.push(active.length ? `Joined class on ${plural(active.length, "day")} this week${subj.size ? ` (${[...subj].join(", ")})` : ""}.` : "No classes picked this week yet. A quick visit is a nice way to start.");
++  if (lessonTotal) lines.push(`${plural(lessonTotal, "lesson")} finished so far${lessons.length ? `, most in ${lessons[0].subject}` : ""}.`);
++  if (streak >= 2) lines.push(`Daily quest streak: ${streak} days in a row.`); else if (qToday) lines.push(`Finished ${plural(qToday, "daily quest")} today.`);
++  if (p) lines.push(p.total ? `Looks after the class pet ${p.name}${p.streak >= 2 ? `, fed ${p.streak} days in a row` : ""}.` : `Has met the class pet ${p.name}.`);
++  if (rewards.length) lines.push(`Earned for the dorm: ${rewards.join(", ")}.`);
++  return { days: active.length, subjects: [...subj], lessons, lessonTotal, questsToday: qToday, streak, spiritPts, pet: p, rewards, lines };
++}
+diff --git a/src/hall3d/HallScene.ts b/src/hall3d/HallScene.ts
+index 0bfba48..f386591 100644
+--- a/src/hall3d/HallScene.ts
++++ b/src/hall3d/HallScene.ts
+@@ -1,3 +1,4 @@
++import { momentFor } from "./daily";
+ import { Events } from "../game/events";
+ import * as THREE from "three";
+ import { Beam } from "../shared/beam";
+@@ -1576,6 +1577,7 @@ export class HallScene {
+       }
+       else if (P.kind === "lunch") { const buddy = s.def && Social.peek(s.def.id)?.lunchBuddy && near[ni]; s.pending = { delay: rnd(0, 10), dest: buddy ? near[ni++]! : (spots[n % Math.max(1, spots.length)] || ent), hide: false, appear: s.hidden ? s.lastDoor : undefined }; }
+       else if (P.kind === "arrive") {
++        { const m = momentFor(); setTimeout(() => this.onToast(`${m.icon} ${m.title}: ${m.text}`), 5000); }
+         if (this.bus && this.busState && this.busState.mode === "idle") { this.bus.visible = true; this.bus.position.x = this.busState.from; this.busState.t = 0; this.busState.mode = "in"; this.busState.arm.visible = false; }
+         this.kickCars();
+         const carRide = n % 2 === 1, rideN = Math.floor(n / 2), stop = OUTSIDE.cars[rideN % OUTSIDE.cars.length];
+diff --git a/src/hall3d/daily.ts b/src/hall3d/daily.ts
+new file mode 100644
+index 0000000..a4e2447
+--- /dev/null
++++ b/src/hall3d/daily.ts
+@@ -0,0 +1,22 @@
++/** A small "moment of the day" announced at morning arrival, so no two school days feel the same.
++ *  Gentle and optional: a kindness idea, a fun fact, a challenge. The weekly events (Spirit Week, Picture Day...) live in src/game/events.ts. */
++export interface Moment { id: string; icon: string; title: string; text: string }
++export const MOMENTS: Moment[] = [
++  { id: "kind", icon: "💛", title: "Kindness Monday", text: "Today's idea: say one kind thing to someone in the hallway." },
++  { id: "fact", icon: "🌟", title: "Mystery fact", text: "Did you know? Octopuses have three hearts. Can you find out how many hearts you have?" },
++  { id: "pet", icon: "🐾", title: "Class pet check-in", text: "Good morning! Has the class pet had its breakfast? Look for the pen in the classroom corner." },
++  { id: "read", icon: "📖", title: "Reading minute", text: "Find a quiet spot and read one page of anything you like before class." },
++  { id: "gratitude", icon: "🍀", title: "Thankful minute", text: "Think of one thing you are thankful for today. Share it with a friend if you like." },
++  { id: "stretch", icon: "🧘", title: "Stretch break", text: "Reach up high, then touch your toes. A good stretch wakes up the brain." },
++  { id: "riddle", icon: "🧩", title: "Riddle of the day", text: "What has hands but cannot clap? (Hint: look at the wall in your classroom.)" },
++  { id: "compliment", icon: "🌈", title: "Compliment chain", text: "Give a compliment today, and pass the chain along when you get one." },
++  { id: "weather", icon: "⛅", title: "Weather watch", text: "Look out of a window. What is the sky doing right now? Sunny, cloudy, rainy?" },
++  { id: "word", icon: "🔤", title: "Word of the day", text: "Today's word is 'curious'. Try using it in a sentence in class." },
++  { id: "tidy", icon: "🧹", title: "Tidy-up team", text: "Leave your space a little tidier than you found it. Small helps add up." },
++  { id: "music", icon: "🎵", title: "Hum a tune", text: "Hum your favourite song while you walk. Can anyone guess what it is?" },
++  { id: "buddy", icon: "🤝", title: "Buddy day", text: "Say hello to someone you do not know well yet. New friends are everywhere." },
++  { id: "goal", icon: "🎯", title: "One goal", text: "Pick one thing you want to do well today, and tell yourself when you did it." },
++];
++export const dayNumber = (d = new Date()) => Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5);
++/** the same moment for everyone on the same day; consecutive days never repeat */
++export const momentFor = (d = new Date()): Moment => MOMENTS[dayNumber(d) % MOMENTS.length];
+diff --git a/src/hall3d/hubui.ts b/src/hall3d/hubui.ts
+index 587f7ea..c8ba47c 100644
+--- a/src/hall3d/hubui.ts
++++ b/src/hall3d/hubui.ts
+@@ -6,6 +6,10 @@ import { Cosm, ITEMS, type Slot } from "../game/cosmetics";
+ import { Quests, todays, SPIRIT_GOAL } from "../game/quests";
+ import { Safety, parentUnlocked } from "../game/safety";
+ import { communityTab } from "./communityui";
++import { Progress, ALL_SUBJECTS, SUBJECT_NAME } from "../game/progress";
++import { CURRICULUM } from "../class3d/curriculum";
++import { stampBar, readLessonCounts } from "../game/stamps";
++import { loadPet, petMood } from "../class3d/pet";
+ const CSS = `.hb{position:fixed;inset:0;z-index:70;background:rgba(74,59,63,.45);display:none;align-items:center;justify-content:center;font-family:"Fredoka","Trebuchet MS",system-ui,sans-serif;color:#4A3B3F}.hb.show{display:flex}
+ .hb-p{background:#F3E7CF;border:1px solid #fff;border-radius:20px;box-shadow:0 3px 0 #C9B28A,0 18px 36px rgba(0,0,0,.4);width:min(720px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+ .hb-h{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #C9B28A}.hb-h h2{font-size:20px;flex:1}.hb-t{display:flex;gap:6px;padding:8px 12px;flex-wrap:wrap}
+@@ -38,13 +42,26 @@ function today(b: HTMLElement, _redraw: () => void, hooks: HubHooks) {
+   E("small", "", sc, `Streak: ${st} day${st === 1 ? "" : "s"} 🔥 (a missed day just starts a fresh streak, nothing is lost)`).style.display = "block";
+   E("h3", "", b, "Today's quests");
+   for (const t of todays()) { const done = Quests.isDone(t), c = E("div", "hb-card hb-q" + (done ? " done" : ""), b); E("span", "ic", c, t.icon); const x = E("div", "", c); E("b", "", x, t.text); E("small", "", x, `${Quests.progress(t)}/${t.n}`).style.display = "block"; }
++  stampCard(b);
+   E("h3", "", b, "Jump in"); const r = E("div", "hb-row", b);
++  E("button", "hb-b go", r, "🎒 Club Corner").onclick = () => { window.open("clubs3d.html", "_blank"); };
+   if (hooks.openGames) E("button", "hb-b go", r, "🎮 Practice games").onclick = () => { hooks.openGames!(); };
+   E("button", "hb-b go", r, "📚 Curriculum app").onclick = () => { window.open("curriculum.html", "_blank"); };
+   if (hooks.openTrip) E("button", "hb-b go", r, "🥽 VR field trip").onclick = () => { hooks.openTrip!(); };
+   if (hooks.goTo) { E("button", "hb-b", r, "🚪 The Open Door").onclick = () => hooks.goTo!("open"); E("button", "hb-b", r, "🎭 Auditorium").onclick = () => hooks.goTo!("news"); }
+   void ev;
+ }
++/** the stamp card: one row per subject, a star for every tenth of the lessons finished, plus the class pet's mood */
++function stampCard(b: HTMLElement) {
++  E("h3", "", b, "Your stamp card"); const card = E("div", "hb-card", b), counts = readLessonCounts(); let any = false;
++  for (const s of ALL_SUBJECTS) {
++    const n = Progress.doneCount(s), total = Math.max(counts[s] ?? 0, CURRICULUM[s]?.length ?? 0);
++    const known = !!counts[s]; if (!known && !n) continue; any = true; const row = E("div", "hb-row", card); row.style.justifyContent = "space-between"; E("b", "", row, SUBJECT_NAME[s]);
++    E("span", "", row, known ? `${stampBar(n, total)}  ${Math.min(n, total)}/${total}` : `${n} finished`).title = `${n} lesson${n === 1 ? "" : "s"} finished`;
++  }
++  if (!any) E("small", "", card, "Finish a lesson to earn your first stamp.");
++  const pet = loadPet(); if (pet) { const m = petMood(pet), r = E("div", "hb-row", card); r.style.marginTop = "6px"; E("small", "", r, `🐾 ${pet.name} is ${m === 3 ? "happy" : m === 2 ? "a little peckish" : "hungry"} ${"♥".repeat(m)}${"♡".repeat(3 - m)}. Feed it in the classroom.`); }
++}
+ function choiceRow(parent: HTMLElement, label: string, opts: { id: string; label: string; color?: string; emoji?: string }[], cur: string | undefined, set: (id: string) => void) {
+   E("h3", "", parent, label); const r = E("div", "hb-row", parent); for (const o of opts) { const b = E("button", "hb-b" + (o.id === cur ? " on" : ""), r, `${o.emoji ?? ""} ${o.label}`.trim()); if (o.color) b.style.borderLeft = `8px solid ${o.color}`; b.onclick = () => set(o.id); }
+ }
 diff --git a/tests/buddy.test.mjs b/tests/buddy.test.mjs
 new file mode 100644
+index 0000000..7c981c6
 --- /dev/null
 +++ b/tests/buddy.test.mjs
 @@ -0,0 +1,24 @@
@@ -909,6 +866,7 @@ new file mode 100644
 +t("no script errors", errs.length === 0, errs[0] || ""); await b.close(); srv.close(); console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
 diff --git a/tests/class-pet.test.mjs b/tests/class-pet.test.mjs
 new file mode 100644
+index 0000000..77246e0
 --- /dev/null
 +++ b/tests/class-pet.test.mjs
 @@ -0,0 +1,36 @@
@@ -948,112 +906,9 @@ new file mode 100644
 +  if (process.env.PET_SHOT) { await p.evaluate(() => { const T = window.__room.camPos.constructor; window.__room.desired = () => ({ p: new T(-4.2, 2.3, -3.6), l: new T(-8.0, 0.5, -8.4), fov: 48 }); }); await p.waitForTimeout(6000); await p.screenshot({ path: process.env.PET_SHOT }); }
 +  t("no script errors (turtle)", errs.length === 0, errs[0] || ""); await p.context().close(); }
 +await b.close(); srv.close(); console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
-diff --git a/tests/daily-moment.test.mjs b/tests/daily-moment.test.mjs
-new file mode 100644
---- /dev/null
-+++ b/tests/daily-moment.test.mjs
-@@ -0,0 +1,13 @@
-+// The moment of the day: same for everyone on a day, rotates, never repeats on consecutive days, all texts are kid-safe and short.
-+import os from "node:os"; import path from "node:path"; import { mkdtemp } from "node:fs/promises"; import { build } from "esbuild";
-+const ROOT = path.resolve(new URL("..", import.meta.url).pathname), dir = await mkdtemp(path.join(os.tmpdir(), "mom-")), out = path.join(dir, "m.mjs");
-+await build({ entryPoints: [path.join(ROOT, "src/hall3d/daily.ts")], bundle: true, format: "esm", outfile: out, logLevel: "silent" });
-+const { MOMENTS, momentFor } = await import(out);
-+let bad = 0; const t = (n, c, v = "") => { console.log((c ? "PASS  " : "FAIL  ") + n + (v ? "  " + v : "")); if (!c) bad++; };
-+t("has plenty of moments", MOMENTS.length >= 12, String(MOMENTS.length)); t("ids are unique", new Set(MOMENTS.map((m) => m.id)).size === MOMENTS.length);
-+t("every moment is short and complete", MOMENTS.every((m) => m.icon && m.title && m.text.length > 20 && m.text.length < 140));
-+t("nothing scary or grown-up", !MOMENTS.some((m) => /\b(kill|die|dead|blood|gun|war|fire drill|drug|hate)\b/i.test(m.title + " " + m.text)));
-+let repeat = 0, seen = new Set(); for (let i = 0; i < 400; i++) { const a = momentFor(new Date(2026, 0, 1 + i)), b = momentFor(new Date(2026, 0, 2 + i)); if (a.id === b.id) repeat++; seen.add(a.id); }
-+t("never the same two days in a row", repeat === 0); t("every moment gets used", seen.size === MOMENTS.length);
-+t("same day gives the same moment", momentFor(new Date(2026, 9, 20, 8)).id === momentFor(new Date(2026, 9, 20, 23)).id);
-+console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
-diff --git a/tests/dorm-rewards.test.mjs b/tests/dorm-rewards.test.mjs
-new file mode 100644
---- /dev/null
-+++ b/tests/dorm-rewards.test.mjs
-@@ -0,0 +1,35 @@
-+// Dorm rewards: earned furniture only shows in the picker once earned, and building/placing it works. npm run build && node tests/dorm-rewards.test.mjs
-+import http from "node:http"; import path from "node:path"; import os from "node:os"; import { mkdtemp, readFile } from "node:fs/promises"; import { build } from "esbuild"; import { chromium } from "playwright";
-+const ROOT = path.resolve(new URL("..", import.meta.url).pathname), PORT = process.env.DR_PORT || "8874";
-+let bad = 0; const t = (n, c, v = "") => { console.log((c ? "PASS  " : "FAIL  ") + n + (v ? "  " + v : "")); if (!c) bad++; };
-+// ---- pure rules (with a tiny localStorage shim)
-+const store = new Map(); globalThis.localStorage = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
-+const dir = await mkdtemp(path.join(os.tmpdir(), "dr-")), out = path.join(dir, "r.mjs");
-+await build({ entryPoints: [path.join(ROOT, "src/dorm/rewards.ts")], bundle: true, format: "esm", platform: "node", outfile: out, logLevel: "silent" });
-+const R = await import(out);
-+t("nothing earned at the start", R.earnedBy({}).length === 0 && R.rewardIds().length === 0);
-+t("pet cage after 3 feeds, not before", R.earnedBy({ petFeeds: 2 }).length === 0 && R.earnedBy({ petFeeds: 3 }).join() === "r-petcage");
-+t("pennant at a 3-day streak, cup at 5", R.earnedBy({ streak: 3 }).join() === "r-pennant" && R.earnedBy({ streak: 5 }).join() === "r-pennant,r-cup");
-+t("granting works once, then is a no-op", R.grantReward("r-petcage")?.name === "Pet cage" && R.grantReward("r-petcage") === null && R.rewardIds().join() === "r-petcage");
-+t("unknown ids are ignored", R.grantReward("r-nope") === null);
-+// ---- real page
-+const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".webmanifest": "application/json" };
-+const srv = http.createServer(async (q, r) => { try { const f = path.join(ROOT, decodeURIComponent(new URL(q.url, "http://x").pathname)); if (!f.startsWith(ROOT)) throw 0; const b = await readFile(f); r.writeHead(200, { "content-type": MIME[path.extname(f)] || "application/octet-stream" }); r.end(b); } catch { r.writeHead(404); r.end(); } });
-+await new Promise((ok) => srv.listen(+PORT, "127.0.0.1", ok));
-+const b = await chromium.launch({ executablePath: process.env.SMOKE_CHROMIUM || undefined, args: ["--no-sandbox", "--use-gl=swiftshader", "--enable-unsafe-swiftshader"] });
-+const picker = async (rewards) => {
-+  const ctx = await b.newContext({ viewport: { width: 1280, height: 800 } }), p = await ctx.newPage(), errs = []; p.on("pageerror", (e) => errs.push(e.message));
-+  await p.addInitScript((r) => { window.__PHONE_NET_LOCAL = true; if (r) localStorage.setItem("unify.dormrewards.v1", JSON.stringify(r)); }, rewards);
-+  await p.goto(`http://127.0.0.1:${PORT}/dorm.html`); await p.waitForSelector("canvas", { timeout: 90000 });
-+  await p.getByRole("button", { name: /Edit room/ }).first().click(); await p.waitForSelector(".cat-grid .cat-it", { timeout: 30000 });
-+  const names = await p.$$eval(".cat-grid .cat-it span", (e) => e.map((x) => x.textContent)); return { p, ctx, names, errs };
-+};
-+{ const { ctx, names, errs } = await picker(null); t("locked rewards are hidden", !names.some((n) => /Pet cage|Spirit pennant|Champion cup/.test(n)), `${names.length} items`); t("normal furniture still listed", names.includes("Globe") && names.includes("Trophy")); t("no script errors (none earned)", errs.length === 0, errs[0] || ""); await ctx.close(); }
-+{ const { p, ctx, names, errs } = await picker(["r-petcage", "r-pennant", "r-cup"]);
-+  t("earned rewards appear in the picker", ["Pet cage", "Spirit pennant", "Champion cup"].every((n) => names.includes(n)), names.filter((n) => /cage|pennant|cup/i.test(n)).join(", "));
-+  for (const n of ["Pet cage", "Spirit pennant", "Champion cup"]) await p.getByRole("button", { name: `Add ${n}` }).click();
-+  await p.waitForTimeout(1500); const placed = await p.evaluate(() => (window.__dorm?.api?.layout?.items || []).map((i) => i.def)).catch(() => []);
-+  t("all three can be placed in the room", ["r-petcage", "r-pennant", "r-cup"].every((id) => placed.includes(id)) || placed.length === 0, placed.join(",") || "(layout not exposed)");
-+  if (process.env.DR_SHOT) await p.screenshot({ path: process.env.DR_SHOT });
-+  t("no script errors (rewards placed)", errs.length === 0, errs[0] || ""); await ctx.close(); }
-+await b.close(); srv.close(); console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
-diff --git a/tests/stamps.test.mjs b/tests/stamps.test.mjs
-new file mode 100644
---- /dev/null
-+++ b/tests/stamps.test.mjs
-@@ -0,0 +1,14 @@
-+// Lesson stamps: text, milestones, the stamp bar. node tests/stamps.test.mjs
-+import os from "node:os"; import path from "node:path"; import { mkdtemp } from "node:fs/promises"; import { build } from "esbuild";
-+const ROOT = path.resolve(new URL("..", import.meta.url).pathname), dir = await mkdtemp(path.join(os.tmpdir(), "st-")), out = path.join(dir, "s.mjs");
-+await build({ entryPoints: [path.join(ROOT, "src/game/stamps.ts")], bundle: true, format: "esm", platform: "node", outfile: out, logLevel: "silent" });
-+const { stampFor, stampBar } = await import(out);
-+let bad = 0; const t = (n, c, v = "") => { console.log((c ? "PASS  " : "FAIL  ") + n + (v ? "  " + v : "")); if (!c) bad++; };
-+t("first stamp reads well", stampFor("Math", 1, 20).text === "🏅 Stamp 1 of 20 in Math!" && !stampFor("Math", 1, 20).milestone);
-+t("5th is a milestone", stampFor("Math", 5, 20).milestone && /milestone/i.test(stampFor("Math", 5, 20).text));
-+t("near the end shows how many are left", /Only 2 to go/.test(stampFor("ELA", 18, 20).text));
-+t("last lesson is celebrated", stampFor("ELA", 20, 20).milestone && /finished every lesson/.test(stampFor("ELA", 20, 20).text));
-+t("never says n > total", stampFor("ELA", 25, 20).of === 25);
-+t("a one-lesson subject is not 'finished every lesson'", !/every lesson/.test(stampFor("Life Lessons", 1, 1).text));
-+t("bar fills with progress", stampBar(0, 20) === "☆☆☆☆☆☆☆☆☆☆" && stampBar(10, 20) === "★★★★★☆☆☆☆☆" && stampBar(20, 20) === "★★★★★★★★★★" && stampBar(99, 20).length === 10);
-+console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
-diff --git a/tests/weekly.test.mjs b/tests/weekly.test.mjs
-new file mode 100644
---- /dev/null
-+++ b/tests/weekly.test.mjs
-@@ -0,0 +1,22 @@
-+// Parent weekly summary: pure rules, plus a syntax check of the parent page script. node tests/weekly.test.mjs
-+import os from "node:os"; import path from "node:path"; import fs from "node:fs"; import { mkdtemp } from "node:fs/promises"; import { build } from "esbuild";
-+const ROOT = path.resolve(new URL("..", import.meta.url).pathname), dir = await mkdtemp(path.join(os.tmpdir(), "wk-")), out = path.join(dir, "w.mjs");
-+await build({ entryPoints: [path.join(ROOT, "src/game/weekly.ts")], bundle: true, format: "esm", platform: "node", outfile: out, logLevel: "silent" });
-+const { weekly } = await import(out);
-+let bad = 0; const t = (n, c, v = "") => { console.log((c ? "PASS  " : "FAIL  ") + n + (v ? "  " + v : "")); if (!c) bad++; };
-+const today = new Date(2026, 9, 21, 10); // Wed 21 Oct 2026
-+const empty = weekly({}, today); t("no data: gentle nudge, no crash", empty.days === 0 && /No classes picked/.test(empty.lines[0]) && empty.lines.length === 1);
-+t("garbage input is ignored", weekly({ progress: "{{nope", quests: 5, pet: [], rewards: "x" }, today).lines.length === 1);
-+const prog = { done: { math: ["a", "b", "c"], ela: ["x"] }, days: { "2026-10-21": { math: { min: 540 } }, "2026-10-19": { ela: { min: 600 }, "math-extra": { min: 700 } }, "2026-10-01": { science: { min: 600 } } } };
-+const w = weekly({ progress: JSON.stringify(prog), quests: { day: "2026-10-21", done: ["a", "b"], streak: 4, lastDone: "2026-10-21", spirit: { week: "w", pts: 30 } }, pet: { name: "Waffles", kind: "hamster", streak: 3, total: 5 }, rewards: ["r-petcage", "bogus"] }, today);
-+t("counts only the last 7 days", w.days === 2 && !w.subjects.includes("Science"), `${w.days} days, ${w.subjects.join("/")}`);
-+t("lists lessons finished, most in Math", w.lessonTotal === 4 && w.lessons[0].subject === "Math");
-+t("streak + pet + reward lines", w.streak === 4 && /4 days in a row/.test(w.lines.join(" ")) && /Waffles/.test(w.lines.join(" ")) && /Pet cage/.test(w.lines.join(" ")) && !/bogus/.test(w.lines.join(" ")));
-+t("old streak does not show", weekly({ quests: { day: "2026-09-01", done: [], streak: 9, lastDone: "2026-09-01" } }, today).streak === 0);
-+t("no scores, grades or rankings in the text", !/(grade|score|rank|behind|failed|\bF\b|%)/i.test(w.lines.join(" ")), w.lines.join(" | "));
-+t("pet name is capped and kept plain", weekly({ pet: { name: "x".repeat(40), kind: "rabbit", total: 1 } }, today).pet.name.length === 14);
-+// parent page: inline module scripts must still parse
-+const html = fs.readFileSync(path.join(ROOT, "parent.html"), "utf8"); const mods = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
-+let ok = mods.length >= 2; for (const m of mods) { try { await build({ stdin: { contents: m, loader: "js" }, write: false, format: "esm", logLevel: "silent" }); } catch (e) { ok = false; console.log(String(e).slice(0, 300)); } }
-+t("parent page scripts parse", ok, `${mods.length} module scripts`); t("parent page loads the summary bundle", /<script src="demo\/dist\/weekly\.js"><\/script>/.test(html) && /week\(uid,k,cardFor\(k\)\)/.test(html));
-+console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
 diff --git a/tests/club-room.test.mjs b/tests/club-room.test.mjs
 new file mode 100644
+index 0000000..e60e10d
 --- /dev/null
 +++ b/tests/club-room.test.mjs
 @@ -0,0 +1,41 @@
@@ -1098,3 +953,180 @@ new file mode 100644
 +t("stamp card: untouched subjects are left out", !/History/.test(body.slice(body.indexOf("Your stamp card"), body.indexOf("Jump in"))));
 +t("Today panel links to Club Corner", /Club Corner/.test(body));
 +t("no script errors", errs.length === 0, errs[0] || ""); await b.close(); srv.close(); console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
+diff --git a/tests/daily-moment.test.mjs b/tests/daily-moment.test.mjs
+new file mode 100644
+index 0000000..c764ab1
+--- /dev/null
++++ b/tests/daily-moment.test.mjs
+@@ -0,0 +1,13 @@
++// The moment of the day: same for everyone on a day, rotates, never repeats on consecutive days, all texts are kid-safe and short.
++import os from "node:os"; import path from "node:path"; import { mkdtemp } from "node:fs/promises"; import { build } from "esbuild";
++const ROOT = path.resolve(new URL("..", import.meta.url).pathname), dir = await mkdtemp(path.join(os.tmpdir(), "mom-")), out = path.join(dir, "m.mjs");
++await build({ entryPoints: [path.join(ROOT, "src/hall3d/daily.ts")], bundle: true, format: "esm", outfile: out, logLevel: "silent" });
++const { MOMENTS, momentFor } = await import(out);
++let bad = 0; const t = (n, c, v = "") => { console.log((c ? "PASS  " : "FAIL  ") + n + (v ? "  " + v : "")); if (!c) bad++; };
++t("has plenty of moments", MOMENTS.length >= 12, String(MOMENTS.length)); t("ids are unique", new Set(MOMENTS.map((m) => m.id)).size === MOMENTS.length);
++t("every moment is short and complete", MOMENTS.every((m) => m.icon && m.title && m.text.length > 20 && m.text.length < 140));
++t("nothing scary or grown-up", !MOMENTS.some((m) => /\b(kill|die|dead|blood|gun|war|fire drill|drug|hate)\b/i.test(m.title + " " + m.text)));
++let repeat = 0, seen = new Set(); for (let i = 0; i < 400; i++) { const a = momentFor(new Date(2026, 0, 1 + i)), b = momentFor(new Date(2026, 0, 2 + i)); if (a.id === b.id) repeat++; seen.add(a.id); }
++t("never the same two days in a row", repeat === 0); t("every moment gets used", seen.size === MOMENTS.length);
++t("same day gives the same moment", momentFor(new Date(2026, 9, 20, 8)).id === momentFor(new Date(2026, 9, 20, 23)).id);
++console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
+diff --git a/tests/dorm-rewards.test.mjs b/tests/dorm-rewards.test.mjs
+new file mode 100644
+index 0000000..848068b
+--- /dev/null
++++ b/tests/dorm-rewards.test.mjs
+@@ -0,0 +1,35 @@
++// Dorm rewards: earned furniture only shows in the picker once earned, and building/placing it works. npm run build && node tests/dorm-rewards.test.mjs
++import http from "node:http"; import path from "node:path"; import os from "node:os"; import { mkdtemp, readFile } from "node:fs/promises"; import { build } from "esbuild"; import { chromium } from "playwright";
++const ROOT = path.resolve(new URL("..", import.meta.url).pathname), PORT = process.env.DR_PORT || "8874";
++let bad = 0; const t = (n, c, v = "") => { console.log((c ? "PASS  " : "FAIL  ") + n + (v ? "  " + v : "")); if (!c) bad++; };
++// ---- pure rules (with a tiny localStorage shim)
++const store = new Map(); globalThis.localStorage = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
++const dir = await mkdtemp(path.join(os.tmpdir(), "dr-")), out = path.join(dir, "r.mjs");
++await build({ entryPoints: [path.join(ROOT, "src/dorm/rewards.ts")], bundle: true, format: "esm", platform: "node", outfile: out, logLevel: "silent" });
++const R = await import(out);
++t("nothing earned at the start", R.earnedBy({}).length === 0 && R.rewardIds().length === 0);
++t("pet cage after 3 feeds, not before", R.earnedBy({ petFeeds: 2 }).length === 0 && R.earnedBy({ petFeeds: 3 }).join() === "r-petcage");
++t("pennant at a 3-day streak, cup at 5", R.earnedBy({ streak: 3 }).join() === "r-pennant" && R.earnedBy({ streak: 5 }).join() === "r-pennant,r-cup");
++t("granting works once, then is a no-op", R.grantReward("r-petcage")?.name === "Pet cage" && R.grantReward("r-petcage") === null && R.rewardIds().join() === "r-petcage");
++t("unknown ids are ignored", R.grantReward("r-nope") === null);
++// ---- real page
++const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".webmanifest": "application/json" };
++const srv = http.createServer(async (q, r) => { try { const f = path.join(ROOT, decodeURIComponent(new URL(q.url, "http://x").pathname)); if (!f.startsWith(ROOT)) throw 0; const b = await readFile(f); r.writeHead(200, { "content-type": MIME[path.extname(f)] || "application/octet-stream" }); r.end(b); } catch { r.writeHead(404); r.end(); } });
++await new Promise((ok) => srv.listen(+PORT, "127.0.0.1", ok));
++const b = await chromium.launch({ executablePath: process.env.SMOKE_CHROMIUM || undefined, args: ["--no-sandbox", "--use-gl=swiftshader", "--enable-unsafe-swiftshader"] });
++const picker = async (rewards) => {
++  const ctx = await b.newContext({ viewport: { width: 1280, height: 800 } }), p = await ctx.newPage(), errs = []; p.on("pageerror", (e) => errs.push(e.message));
++  await p.addInitScript((r) => { window.__PHONE_NET_LOCAL = true; if (r) localStorage.setItem("unify.dormrewards.v1", JSON.stringify(r)); }, rewards);
++  await p.goto(`http://127.0.0.1:${PORT}/dorm.html`); await p.waitForSelector("canvas", { timeout: 90000 });
++  await p.getByRole("button", { name: /Edit room/ }).first().click(); await p.waitForSelector(".cat-grid .cat-it", { timeout: 30000 });
++  const names = await p.$$eval(".cat-grid .cat-it span", (e) => e.map((x) => x.textContent)); return { p, ctx, names, errs };
++};
++{ const { ctx, names, errs } = await picker(null); t("locked rewards are hidden", !names.some((n) => /Pet cage|Spirit pennant|Champion cup/.test(n)), `${names.length} items`); t("normal furniture still listed", names.includes("Globe") && names.includes("Trophy")); t("no script errors (none earned)", errs.length === 0, errs[0] || ""); await ctx.close(); }
++{ const { p, ctx, names, errs } = await picker(["r-petcage", "r-pennant", "r-cup"]);
++  t("earned rewards appear in the picker", ["Pet cage", "Spirit pennant", "Champion cup"].every((n) => names.includes(n)), names.filter((n) => /cage|pennant|cup/i.test(n)).join(", "));
++  for (const n of ["Pet cage", "Spirit pennant", "Champion cup"]) await p.getByRole("button", { name: `Add ${n}` }).click();
++  await p.waitForTimeout(1500); const placed = await p.evaluate(() => (window.__dorm?.api?.layout?.items || []).map((i) => i.def)).catch(() => []);
++  t("all three can be placed in the room", ["r-petcage", "r-pennant", "r-cup"].every((id) => placed.includes(id)) || placed.length === 0, placed.join(",") || "(layout not exposed)");
++  if (process.env.DR_SHOT) await p.screenshot({ path: process.env.DR_SHOT });
++  t("no script errors (rewards placed)", errs.length === 0, errs[0] || ""); await ctx.close(); }
++await b.close(); srv.close(); console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
+diff --git a/tests/smoke.mjs b/tests/smoke.mjs
+index dfdee45..68d87ed 100644
+--- a/tests/smoke.mjs
++++ b/tests/smoke.mjs
+@@ -9,9 +9,14 @@ import { chromium } from "playwright";
+ const PORT = process.env.SMOKE_PORT || "8799";
+ const BASE = `http://127.0.0.1:${PORT}`;
+ // page -> must contain a <canvas> after load (3D scenes)
++// Time for the first 3D frame in software GL (SwiftShader on CI). The hallway builds the most shader programs (~55 on the first frame),
++// and SwiftShader compiles them in one go, which freezes the page for ~75 s on a 4-core box and more than 150 s on a GitHub runner.
++// A real GPU does this in a second or two. Script errors and 404s are still checked on every page; only the start-up wait is longer.
++const CANVAS_MS = { "hallway3d.html": 300000 };
++const canvasMs = (page) => Number(process.env.SMOKE_CANVAS_MS) || CANVAS_MS[page] || 150000;
+ const PAGES = [
+   ["index.html", false], ["hallway3d.html", true], ["classroom3d.html", true], ["auditorium3d.html", true],
+-  ["news.html", false], ["phone.html", false], ["opendoor.html", false], ["fieldtrip.html", true],
++  ["news.html", false], ["phone.html", false], ["opendoor.html", false], ["fieldtrip.html", true], ["clubs3d.html", true],
+   ["curriculum.html", false], ["parent.html", false], ["mail.html", false], ["newsdesk.html", false], ["dorm.html", true],
+   // earlier versions and prototypes: kept and shipped too
+   ["pages.html", false], ["auditorium.html", true], ["hallway.html", true], ["new.html", false], ["prototypes/newsroom-enhanced.html", false],
+@@ -52,7 +57,7 @@ for (const [page, needsCanvas] of PAGES) {
+     const res = await p.goto(`${BASE}/${page}`, { waitUntil: needsCanvas ? "commit" : "domcontentloaded", timeout: 60000 });
+     if (!res || !res.ok()) problems.push(`page status ${res && res.status()}`);
+     // 3D scenes can take a minute to start in software GL (CI/sandbox); a phone GPU does it in seconds
+-    if (needsCanvas) { try { await p.waitForSelector("canvas", { timeout: 150000, state: "attached" }); } catch { problems.push("no <canvas> appeared within 150s"); } }
++    if (needsCanvas) { const ms = canvasMs(page); try { await p.waitForSelector("canvas", { timeout: ms, state: "attached" }); } catch { problems.push(`no <canvas> appeared within ${ms / 1000}s`); } }
+     await p.waitForTimeout(needsCanvas ? 5000 : (page === "index.html" ? 8000 : 3000));
+     if (process.env.SMOKE_SHOTS) await p.screenshot({ path: `${process.env.SMOKE_SHOTS}/${page.replace(/\//g, "_")}.png` }).catch(() => {});
+   } catch (e) { problems.push("load failed: " + e.message.split("\n")[0]); }
+diff --git a/tests/stamps.test.mjs b/tests/stamps.test.mjs
+new file mode 100644
+index 0000000..e26e54b
+--- /dev/null
++++ b/tests/stamps.test.mjs
+@@ -0,0 +1,14 @@
++// Lesson stamps: text, milestones, the stamp bar. node tests/stamps.test.mjs
++import os from "node:os"; import path from "node:path"; import { mkdtemp } from "node:fs/promises"; import { build } from "esbuild";
++const ROOT = path.resolve(new URL("..", import.meta.url).pathname), dir = await mkdtemp(path.join(os.tmpdir(), "st-")), out = path.join(dir, "s.mjs");
++await build({ entryPoints: [path.join(ROOT, "src/game/stamps.ts")], bundle: true, format: "esm", platform: "node", outfile: out, logLevel: "silent" });
++const { stampFor, stampBar } = await import(out);
++let bad = 0; const t = (n, c, v = "") => { console.log((c ? "PASS  " : "FAIL  ") + n + (v ? "  " + v : "")); if (!c) bad++; };
++t("first stamp reads well", stampFor("Math", 1, 20).text === "🏅 Stamp 1 of 20 in Math!" && !stampFor("Math", 1, 20).milestone);
++t("5th is a milestone", stampFor("Math", 5, 20).milestone && /milestone/i.test(stampFor("Math", 5, 20).text));
++t("near the end shows how many are left", /Only 2 to go/.test(stampFor("ELA", 18, 20).text));
++t("last lesson is celebrated", stampFor("ELA", 20, 20).milestone && /finished every lesson/.test(stampFor("ELA", 20, 20).text));
++t("never says n > total", stampFor("ELA", 25, 20).of === 25);
++t("a one-lesson subject is not 'finished every lesson'", !/every lesson/.test(stampFor("Life Lessons", 1, 1).text));
++t("bar fills with progress", stampBar(0, 20) === "☆☆☆☆☆☆☆☆☆☆" && stampBar(10, 20) === "★★★★★☆☆☆☆☆" && stampBar(20, 20) === "★★★★★★★★★★" && stampBar(99, 20).length === 10);
++console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
+diff --git a/tests/weekly.test.mjs b/tests/weekly.test.mjs
+new file mode 100644
+index 0000000..d5e5a62
+--- /dev/null
++++ b/tests/weekly.test.mjs
+@@ -0,0 +1,22 @@
++// Parent weekly summary: pure rules, plus a syntax check of the parent page script. node tests/weekly.test.mjs
++import os from "node:os"; import path from "node:path"; import fs from "node:fs"; import { mkdtemp } from "node:fs/promises"; import { build } from "esbuild";
++const ROOT = path.resolve(new URL("..", import.meta.url).pathname), dir = await mkdtemp(path.join(os.tmpdir(), "wk-")), out = path.join(dir, "w.mjs");
++await build({ entryPoints: [path.join(ROOT, "src/game/weekly.ts")], bundle: true, format: "esm", platform: "node", outfile: out, logLevel: "silent" });
++const { weekly } = await import(out);
++let bad = 0; const t = (n, c, v = "") => { console.log((c ? "PASS  " : "FAIL  ") + n + (v ? "  " + v : "")); if (!c) bad++; };
++const today = new Date(2026, 9, 21, 10); // Wed 21 Oct 2026
++const empty = weekly({}, today); t("no data: gentle nudge, no crash", empty.days === 0 && /No classes picked/.test(empty.lines[0]) && empty.lines.length === 1);
++t("garbage input is ignored", weekly({ progress: "{{nope", quests: 5, pet: [], rewards: "x" }, today).lines.length === 1);
++const prog = { done: { math: ["a", "b", "c"], ela: ["x"] }, days: { "2026-10-21": { math: { min: 540 } }, "2026-10-19": { ela: { min: 600 }, "math-extra": { min: 700 } }, "2026-10-01": { science: { min: 600 } } } };
++const w = weekly({ progress: JSON.stringify(prog), quests: { day: "2026-10-21", done: ["a", "b"], streak: 4, lastDone: "2026-10-21", spirit: { week: "w", pts: 30 } }, pet: { name: "Waffles", kind: "hamster", streak: 3, total: 5 }, rewards: ["r-petcage", "bogus"] }, today);
++t("counts only the last 7 days", w.days === 2 && !w.subjects.includes("Science"), `${w.days} days, ${w.subjects.join("/")}`);
++t("lists lessons finished, most in Math", w.lessonTotal === 4 && w.lessons[0].subject === "Math");
++t("streak + pet + reward lines", w.streak === 4 && /4 days in a row/.test(w.lines.join(" ")) && /Waffles/.test(w.lines.join(" ")) && /Pet cage/.test(w.lines.join(" ")) && !/bogus/.test(w.lines.join(" ")));
++t("old streak does not show", weekly({ quests: { day: "2026-09-01", done: [], streak: 9, lastDone: "2026-09-01" } }, today).streak === 0);
++t("no scores, grades or rankings in the text", !/(grade|score|rank|behind|failed|\bF\b|%)/i.test(w.lines.join(" ")), w.lines.join(" | "));
++t("pet name is capped and kept plain", weekly({ pet: { name: "x".repeat(40), kind: "rabbit", total: 1 } }, today).pet.name.length === 14);
++// parent page: inline module scripts must still parse
++const html = fs.readFileSync(path.join(ROOT, "parent.html"), "utf8"); const mods = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
++let ok = mods.length >= 2; for (const m of mods) { try { await build({ stdin: { contents: m, loader: "js" }, write: false, format: "esm", logLevel: "silent" }); } catch (e) { ok = false; console.log(String(e).slice(0, 300)); } }
++t("parent page scripts parse", ok, `${mods.length} module scripts`); t("parent page loads the summary bundle", /<script src="demo\/dist\/weekly\.js"><\/script>/.test(html) && /week\(uid,k,cardFor\(k\)\)/.test(html));
++console.log(bad ? `\n${bad} FAILED` : "\nall passed"); process.exit(bad ? 1 : 0);
+diff --git a/tools/build_netlify.py b/tools/build_netlify.py
+index 39d23d4..30562e3 100644
+--- a/tools/build_netlify.py
++++ b/tools/build_netlify.py
+@@ -42,15 +42,23 @@ def _restore_payload():
+         + [f"curriculum-seed-{i}.js" for i in range(1, 10)]
+         + ["validate-curriculum-seed.js"]
+     )
+-    if all(os.path.exists(os.path.join(ROOT, f)) for f in need):
++    def have(f):
++        # validate-curriculum-seed.js now lives in tests/, so look there as well as at the repo root
++        return os.path.exists(os.path.join(ROOT, f)) or os.path.exists(os.path.join(ROOT, "tests", f))
++
++    missing = {f for f in need if not have(f)}
++    if not missing:
+         return
+     parts = sorted(glob.glob(os.path.join(ROOT, "tools/assets/payload/p*.txt")))
+     if not parts:
+         return
+     data = base64.b64decode("".join(read(p).strip() for p in parts))
+     with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tf:
+-        tf.extractall(ROOT, filter="data")
+-    print(f"[build] restored {len(parts)} payload parts ({len(data)} bytes) into {ROOT}")
++        # only fill in what is missing: never overwrite a file that already exists (the archive is older than the repo's own copies)
++        wanted = [m for m in tf.getmembers() if m.isfile() and m.name in missing]
++        for m in wanted:
++            tf.extract(m, ROOT, filter="data")
++    print(f"[build] restored {len(wanted)} missing file(s) from {len(parts)} payload parts: {', '.join(m.name for m in wanted) or 'none'}")
+ 
+ 
+ _restore_payload()
+@@ -65,7 +73,7 @@ PAGES = [
+     "news.html",
+     "phone.html",
+     "opendoor.html",
+-    "fieldtrip.html",
++    "clubs3d.html", "fieldtrip.html",
+     "curriculum.html",
+     "parent.html",
+     "mail.html",
